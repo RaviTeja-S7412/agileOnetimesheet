@@ -48,7 +48,6 @@ const AppBreadcrumb = () => {
     const prevPage = localStorage.getItem('prevPage')
     location.split('/').reduce((prev, curr, index, array) => {
       const currentPathname = `${prev}/${curr}`
-      console.log(currentPathname)
       const routeName = getRouteName(currentPathname, routes)
       routeName &&
         breadcrumbs.push({

@@ -1,10 +1,10 @@
 import { clientConstants } from './constants'
 import axios from '../helpers/axios'
 
-export const createClient = (udata) => {
+export const createProject = (udata) => {
   return async (dispatch) => {
     dispatch({ type: clientConstants.SAVE_CLIENT_REQUEST })
-    const res = await axios.post(`/admin/create_client`, udata)
+    const res = await axios.post(`/admin/create_project`, udata)
 
     if (res.status === 200) {
       dispatch({
@@ -20,10 +20,10 @@ export const createClient = (udata) => {
   }
 }
 
-export const updateClient = (udata) => {
+export const updateProject = (udata) => {
   return async (dispatch) => {
     dispatch({ type: clientConstants.UPDATE_CLIENT_REQUEST })
-    const res = await axios.post(`/admin/update_client`, udata)
+    const res = await axios.post(`/admin/update_project`, udata)
 
     if (res.status === 200) {
       dispatch({
@@ -39,10 +39,10 @@ export const updateClient = (udata) => {
   }
 }
 
-export const deleteClient = (udata) => {
+export const deleteProject = (udata) => {
   return async (dispatch) => {
     dispatch({ type: clientConstants.DELETE_CLIENT_REQUEST })
-    const res = await axios.post(`/admin/delete_client`, udata)
+    const res = await axios.post(`/admin/delete_project`, udata)
 
     if (res.status === 200) {
       dispatch({
@@ -58,10 +58,10 @@ export const deleteClient = (udata) => {
   }
 }
 
-export const getClients = (udata) => {
+export const getProjects = (udata) => {
   return async (dispatch) => {
     dispatch({ type: clientConstants.GET_CLIENTS_REQUEST })
-    const res = await axios.post(`/admin/get_clients`, udata)
+    const res = await axios.post(`/admin/get_projects`, udata)
 
     if (res.status === 200) {
       dispatch({
@@ -77,10 +77,10 @@ export const getClients = (udata) => {
   }
 }
 
-export const get_allclients = () => {
+export const get_allprojects = () => {
   return async (dispatch) => {
     dispatch({ type: clientConstants.GET_ALLCLIENTS_REQUEST })
-    const res = await axios.get(`/admin/get_allclients`)
+    const res = await axios.get(`/admin/get_allprojects`)
 
     if (res.status === 200) {
       dispatch({
@@ -96,15 +96,15 @@ export const get_allclients = () => {
   }
 }
 
-export const get_singleclient = (udata) => {
+export const get_singleproject = (udata) => {
   return async (dispatch) => {
     dispatch({ type: clientConstants.GET_SINGLECLIENT_REQUEST })
-    const res = await axios.post(`/admin/get_singleclient`, udata)
+    const res = await axios.post(`/admin/get_singleproject`, udata)
 
     if (res.status === 200) {
       dispatch({
         type: clientConstants.GET_SINGLECLIENT_SUCCESS,
-        payload: res.data.client_data,
+        payload: res.data.project_data,
       })
     } else {
       if (res.status === 202) {

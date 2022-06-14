@@ -1,6 +1,7 @@
 const mongo = require('../../connection.js').getDb();
 
 const employees = mongo.collection("tbl_employees");
+const assigned_projects = mongo.collection("tbl_assigned_projects");
 var ObjectId = require('mongodb').ObjectID;
 
 
@@ -268,3 +269,160 @@ exports.get_allemployees = (req, res) => {
         })
 }
 
+exports.get_assigned_projects = (req, res) => {
+    
+    var perPage = req.body.perPage ? req.body.perPage : 10,
+    page = req.body.page-1
+    var search = req.body.search
+    const data = []
+
+    assigned_projects.aggregate([
+        { "$sort": { '_id' : -1 } },
+        { "$limit": perPage * req.body.page },
+        { "$skip": perPage * page },
+        { $match: 
+            {"status":1,"deleted":0,"team_lead":req.body.team_lead,
+                $or: 
+                [ 
+                    { project_id: { "$regex": search, "$options": "i"} },
+                    { employees: { "$regex": search, "$options": "i"} },
+                    { team_lead: { "$regex": search, "$options": "i"} },
+                ] 
+            },
+        },
+        { $lookup: {
+            from:'tbl_projects',
+            localField: "project_id",
+            foreignField: "_id",
+            as: "project_data"                                                                  
+        }},
+        {$project: {
+            "project_data": {$arrayElemAt: [ "$project_data",0 ] },
+        }}
+    ])
+    .toArray(function (err, db_data) {
+
+            if(err){
+                return res.status(202).json({message:err});
+            }
+
+            if(db_data.length > 0){
+                db_data.forEach((element) => {
+                  
+                    data.push({
+                        "id": element._id,
+                        "project_id": element.project_id,
+                        "project_name": element.project_data,
+                    })
+
+                });
+            }
+
+            assigned_projects.find({"status":1,"deleted":0,"team_lead":req.body.team_lead, $or: 
+                [ 
+                    { project_id: { "$regex": search, "$options": "i"} },
+                    { employees: { "$regex": search, "$options": "i"} },
+                    { team_lead: { "$regex": search, "$options": "i"} },
+                ] 
+            }).count(function (err, count) {
+                return res.status(200).json({
+                    total_users: data,
+                    pageIndex: req.body.page,
+                    total_pages: Math.ceil(count / perPage),
+                    total_users_count: count,
+                    prevPage: page > 0 ? true : false,
+                    nextPage: Math.ceil(count / perPage) === req.body.page ? false : true
+                });   
+            })
+        })
+}
+
+exports.create_assignproject = (req, res) => {
+    
+    if(!req.body.team_lead){
+        return res.status(202).json({ message: "ID is Required." });
+    }
+    if(!req.body.project_id){
+        return res.status(202).json({ message: "Project is Required." });
+    }
+    if(!req.body.employees){
+        return res.status(202).json({ message: "Employees is Required." });
+    }
+
+    const data = {
+        "project_id": req.body.project_id,
+        "employees": req.body.employees,
+        "created_date": new Date(),
+        "team_lead": req.body.team_lead,
+        "updated_date": "",
+        "status" : 1,
+        "deleted" : 0
+    }
+    
+    assigned_projects.find({ project_id: req.body.project_id }).toArray((error, result) => {
+        if (result.length > 0) {
+            return res.status(202).json({
+                message: 'Already Assigned Employees To This Project.'
+            });
+        }
+        
+        assigned_projects.insertOne(data, function (error, result) {
+            if (error) {
+                return res.status(202).json({
+                    message: 'error occured'
+                });
+            }
+
+            if (result) {
+                return res.status(200).json({
+                    message: "Project Successfully Assigned To Employees"
+                })
+            }
+        });
+    });
+}
+
+exports.update_assignproject = (req, res) => {
+    
+    if(!req.body.id){
+        return res.status(202).json({ message: "ID is Required." });
+    }
+    if(!req.body.team_lead){
+        return res.status(202).json({ message: "Team Lead is Required." });
+    }
+    if(!req.body.project_id){
+        return res.status(202).json({ message: "Project is Required." });
+    }
+    if(!req.body.employees){
+        return res.status(202).json({ message: "Employees is Required." });
+    }
+
+    const data = {
+        "project_id": req.body.project_id,
+        "employees": req.body.employees,
+        "updated_date": new Date(),
+        "team_lead": req.body.team_lead,
+    }
+    
+    assigned_projects.find({ project_id: req.body.project_id }).toArray((error, result) => {
+        if (result.length > 0) {
+            if(result[0]._id != req.body.id){
+                errors.push({message:"Already Assigned Employees To This Project."});
+            }
+        }
+        
+        assigned_projects.updateOne({_id:new ObjectId(req.body.id)}, {$set: data}, function (error, result) {
+            if (error) {
+                return res.status(202).json({
+                    message: 'error occured'
+                });
+            }
+
+            if (result) {
+                return res.status(200).json({
+                    message: "Project Successfully Assigned To Employees"
+                })
+            }
+        });
+    });
+}

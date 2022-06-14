@@ -47,11 +47,7 @@ const Users = () => {
   }
 
   const editUser = (id) => {
-    if (login_user.role === 3) {
       location('/admin/team-leads/update-team-lead?id='+id)
-    } else {
-      location('/admin/users/update-user?id='+id)
-    }
   }
 
   const columns = useMemo(
@@ -84,26 +80,6 @@ const Users = () => {
         selector: (row) => `${row.email}`,
         sortable: true,
       },
-      {
-        name: 'Designation',
-        selector: (row) => `${row.designation}`,
-        sortable: true,
-      },
-      {
-        name: 'Role',
-        selector: (row) => `${row.role_name}`,
-        sortable: true,
-      },
-      // {
-      //   name: 'Created By',
-      //   selector: (row) => `${row.created_by}`,
-      //   sortable: true,
-      // },
-      // {
-      //   name: 'Updated By',
-      //   selector: (row) => `${row.updated_by}`,
-      //   sortable: true,
-      // },
       {
         name: 'Created Date',
         selector: (row) => `${row.created_date}`,
@@ -147,7 +123,7 @@ const Users = () => {
     if (user_data.get_users) {
       fetchUsers(currentPage)
     } else {
-      const displayColumns = ["id","admin_name","mobile","email","designation","role_name","created_date"];
+      const displayColumns = ["id","admin_name","mobile","email","created_date"];
       var udata = Pagination(user_data.users, user_data.nextPage, currentPage, perPage, displayColumns)
       setData(udata)
       setTotalRows(user_data.total_users_count)
@@ -160,7 +136,7 @@ const Users = () => {
         <CCol xs={12}>
           <CCard className="mb-3 border-top-primary border-top-3">
             <CCardHeader>
-              <strong>All {login_user && login_user.role === 3 ? 'Team Leads' : 'Users'}</strong>
+              <strong>All Team Leads</strong>
             </CCardHeader>
             <CCardBody>
               <DataTable

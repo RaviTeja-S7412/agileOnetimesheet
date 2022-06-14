@@ -5,7 +5,6 @@ var ObjectId = require('mongodb').ObjectID;
 
 
 exports.create_lead = (req, res) => {
-    console.log(req.body)
     if(!req.body.candidate_name){
         return res.status(202).json({ message: "Candidate Name is Required." });
     }

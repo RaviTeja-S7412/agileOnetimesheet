@@ -19,7 +19,7 @@ mongo.connectToServer( function( err) {
   // auth routes
       app.use('/api',require('./routes/admin/auth'));
       app.use('/api',require('./routes/admin/admin'));
-      app.use('/api',require('./routes/admin/clients'));
+      app.use('/api',require('./routes/admin/projects'));
       app.use('/api',require('./routes/admin/employees'));
       app.use('/api',require('./routes/admin/leads'));
       app.use('/api',require('./routes/admin/routes'));

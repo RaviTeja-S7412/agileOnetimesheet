@@ -2,45 +2,18 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useMemo, useState, useEffect } from 'react'
-import styled, { keyframes } from 'styled-components'
 import '@coreui/coreui/dist/css/coreui.css'
 import DataTable from 'react-data-table-component'
-import { CCard, CRow, CCol, CCardHeader, CCardBody, CFormInput, CForm, CButton } from '@coreui/react'
+import { CCard, CRow, CCol, CCardHeader, CCardBody, CButton } from '@coreui/react'
 import { useSelector, useDispatch } from 'react-redux'
-import { deleteClient, getClients } from 'src/actions/clients.actions'
+import { deleteProject, getProjects } from 'src/actions/projects.actions'
 import CIcon from '@coreui/icons-react'
 import { cilPenAlt, cilTrash } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 import swal from 'sweetalert'
+import {SearchInput,CustomLoader,customStyles} from 'src/components/datatables/index'
+import Pagination from 'src/components/datatables/Pagination'
 
-const rotate360 = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-`
-const Spinner = styled.div`
-  margin: 16px;
-  animation: ${rotate360} 1s linear infinite;
-  transform: translateZ(0);
-  border-top: 2px solid grey;
-  border-right: 2px solid grey;
-  border-bottom: 2px solid grey;
-  border-left: 4px solid black;
-  background: transparent;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-`
-const CustomLoader = () => (
-  <div style={{ padding: '24px' }}>
-    <Spinner />
-    <div>Loading...</div>
-  </div>
-)
 const Clients = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -48,7 +21,6 @@ const Clients = () => {
   const [perPage, setPerPage] = useState(10)
   const [searchText, setSearchtext] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchVal, setSearchval] = useState('')
   const get_clients = useSelector((state) => state.clients)
   const dispatch = useDispatch()
   const location = useNavigate()
@@ -56,28 +28,29 @@ const Clients = () => {
   const handleDelete = (id) => {
     swal({
       title: "Are you sure?",
-      text: "Want to delete this client.",
+      text: "Want to delete this project.",
       icon: "warning",
       buttons: true,
       dangerMode: true,
     })
     .then((willDelete) => {
       if (willDelete) {
-          dispatch(deleteClient({ user_id: id }))
-          swal("Client has been deleted!", {
+          dispatch(deleteProject({ user_id: id }))
+          swal("Project has been deleted!", {
             icon: "success",
           });
       } else {
-        swal("Client is safe!");
+        swal("Project is safe!");
       }
     });
   }
 
   const handleEdit = (id) => {
-    location('/admin/settings/clients/updateClient?id='+id)
+    location('/admin/projects/updateProject?id='+id)
   }
+
   const handleCreate = () => {
-    location('/admin/settings/clients/createClient')
+    location('/admin/projects/createProject')
   }
 
   const columns = useMemo(
@@ -89,6 +62,21 @@ const Clients = () => {
       {
         name: 'Client Name',
         selector: (row) => `${row.client_name}`,
+        sortable: true,
+      },
+      {
+        name: 'Project Name',
+        selector: (row) => `${row.project_name}`,
+        sortable: true,
+      },
+      {
+        name: 'Project Start Date',
+        selector: (row) => `${row.project_start_date}`,
+        sortable: true,
+      },
+      {
+        name: 'Project Due Date',
+        selector: (row) => `${row.project_due_date}`,
         sortable: true,
       },
       {
@@ -117,7 +105,7 @@ const Clients = () => {
       perPage: size,
       search: search,
     }
-    dispatch(getClients(post_data))
+    dispatch(getProjects(post_data))
     setLoading(false)
   }
 
@@ -137,69 +125,12 @@ const Clients = () => {
     fetchUsers()
   }
 
-  const subHeaderComponentMemo = useMemo(() => {
-    return (
-      <>
-      <CForm onSubmit={searchData}>
-        <CRow>
-          <CCol xs={12}>
-            <CFormInput
-              type="text"
-              id="name"
-              name="search"
-              placeholder="Search..."
-              defaultValue={searchVal}
-              autoComplete="off"
-              onChange={(e) => setSearchtext(e.target.value)}
-            />
-            <input type="submit" hidden />
-          </CCol>
-        </CRow>
-      </CForm>
-      </>
-    )
-  })
-
   useEffect(() => {
     if (get_clients.get_clients) {
       fetchUsers(currentPage)
     } else {
-      const udata = []
-      if (get_clients.clients) {
-        var index = 0
-        get_clients.clients.forEach((element) => {
-          var prefix = ''
-          if (get_clients.clients.length === (index+1) && get_clients.nextPage === true) {
-            prefix = currentPage*(index+1)
-          } else {
-            var suffix = ''
-            if (perPage === 50){
-              suffix = currentPage-1 === 0 ? '' : (currentPage-1)*5
-            } else if (perPage === 40) {
-              suffix = currentPage-1 === 0 ? '' : (currentPage-1)*4
-            } else if (perPage === 30) {
-              suffix = currentPage-1 === 0 ? '' : (currentPage-1)*3
-            } else if (perPage === 20) {
-              suffix = currentPage-1 === 0 ? '' : (currentPage-1)*2
-            } else if (perPage === 10) {
-              suffix = currentPage-1 === 0 ? '' : (currentPage-1)
-            }
-
-            if (get_clients.clients.length === (index+1) && get_clients.nextPage === false && get_clients.clients.length >= 10) {
-              prefix =  currentPage*(index+1)
-            }else{
-              prefix =  suffix+''+(index+1)
-            }
-          }
-          udata.push({
-            serial: prefix,
-            client_name: element.client_name,
-            id: element.id,
-            created_date: element.created_date,
-          })
-          index++
-        })
-      }
+      const displayColumns = ["id","client_name","project_name","project_start_date","project_due_date","created_date"];
+      var udata = Pagination(get_clients.clients, get_clients.nextPage, currentPage, perPage, displayColumns)
       setData(udata)
       setTotalRows(get_clients.total_users_count)
     }
@@ -212,7 +143,7 @@ const Clients = () => {
             <CCardHeader>
               <CRow>
                 <CCol xs={4}>
-                  <strong>All Routes</strong>
+                  <strong>All Projects</strong>
                 </CCol>
                 <CCol xs={8}>
                   <CButton color="primary" onClick={handleCreate} size="sm" className="float-end">
@@ -236,7 +167,8 @@ const Clients = () => {
                 paginationRowsPerPageOptions={[10, 20, 30, 40, 50]}
                 onChangePage={handlePageChange}
                 subHeader
-                subHeaderComponent={subHeaderComponentMemo}
+                subHeaderComponent={<SearchInput submitFunction={searchData} setSearchtext={setSearchtext} />}
+                customStyles={customStyles}
               />
             </CCardBody>
           </CCard>

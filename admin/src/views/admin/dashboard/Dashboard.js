@@ -14,21 +14,8 @@ const Dashboard = () => {
           <CCol xs={12} sm={6} lg={3}>
             <CWidgetStatsB
               className="mb-4"
-              progress={{ color: 'success', value: 89.9 }}
-              // text="Lorem ipsum dolor sit amet enim."
-              title="Account Managers"
-              value={dashboard_data ? dashboard_data.ASSTMCount : 0}
-            />
-          </CCol>
-        ) : (
-          ''
-        )}
-        {auth.role === 1 || auth.role === 3 ? (
-          <CCol xs={12} sm={6} lg={3}>
-            <CWidgetStatsB
-              className="mb-4"
               value={dashboard_data ? dashboard_data.TEAMLCount : 0}
-              title="Techinical Leads"
+              title="Team Leads"
               progress={{ color: 'info', value: 89.9 }}
               // text="Lorem ipsum dolor sit amet enim."
             />
@@ -36,13 +23,26 @@ const Dashboard = () => {
         ) : (
           ''
         )}
-        {auth.role === 1 || auth.role === 4 ? (
+        {auth.role === 1 ? (
           <CCol xs={12} sm={6} lg={3}>
             <CWidgetStatsB
               className="mb-4"
               value={dashboard_data ? dashboard_data.EMPCount : 0}
               title="Employees"
               progress={{ color: 'warning', value: 89.9 }}
+              // text="Lorem ipsum dolor sit amet enim."
+            />
+          </CCol>
+        ) : (
+          ''
+        )}
+        {auth.role === 1 ? (
+          <CCol xs={12} sm={6} lg={3}>
+            <CWidgetStatsB
+              className="mb-4"
+              value={dashboard_data ? dashboard_data.PROJECTCount : 0}
+              title="Projects"
+              progress={{ color: 'primary', value: 89.9 }}
               // text="Lorem ipsum dolor sit amet enim."
             />
           </CCol>

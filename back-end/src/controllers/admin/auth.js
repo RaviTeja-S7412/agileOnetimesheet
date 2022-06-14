@@ -39,7 +39,6 @@ exports.signup = (req, res) => {
         "email": req.body.email,
         "password": bcrypt.hashSync(req.body.password, 10),
         "mobile": req.body.mobile,
-        "designation": req.body.designation,
         "role": parseInt(req.body.role),
         "created_date": new Date(),
         "updated_date": "",
@@ -129,7 +128,6 @@ exports.updateProfile = [upload.single("file"),function(req,res){
         "admin_name": req.body.admin_name,
         "email": req.body.email,
         "mobile": req.body.mobile,
-        "designation": req.body.designation,
     }
 
     users.updateOne({_id:new ObjectId(id)}, {$set: user_data}, function (error, result) {
@@ -181,7 +179,6 @@ exports.updateUser = (req, res) => {
         "admin_name": req.body.admin_name,
         "email": req.body.email,
         "mobile": req.body.mobile,
-        "designation": req.body.designation,
         "role": parseInt(req.body.role),
         "updated_date": new Date(),
         "updated_by": req.body.updated_by,
@@ -369,7 +366,6 @@ exports.getUsers = (req, res) => {
                         "mobile": element.mobile,
                         "email": element.email,
                         "designation": element.designation,
-                        "role_name": element.role_data.length > 0 ?  element.role_data[0].role : '',
                         "created_date": new Date(element.created_date).toLocaleDateString('en-US'),
                     })
 
@@ -381,7 +377,6 @@ exports.getUsers = (req, res) => {
                     { admin_name: { "$regex": search, "$options": "i"} }, 
                     { email: { "$regex": search, "$options": "i"} }, 
                     { mobile: { "$regex": search, "$options": "i"} }, 
-                    { designation: { "$regex": search, "$options": "i"} } 
                 ] 
             }).count(function (err, count) {
                 return res.status(200).json({
