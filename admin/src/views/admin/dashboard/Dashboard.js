@@ -23,7 +23,7 @@ const Dashboard = () => {
         ) : (
           ''
         )}
-        {auth.role === 1 ? (
+        {auth.role === 1 || auth.role === 2 ? (
           <CCol xs={12} sm={6} lg={3}>
             <CWidgetStatsB
               className="mb-4"
@@ -36,7 +36,7 @@ const Dashboard = () => {
         ) : (
           ''
         )}
-        {auth.role === 1 ? (
+        {auth.role === 1 || auth.role === 2 ? (
           <CCol xs={12} sm={6} lg={3}>
             <CWidgetStatsB
               className="mb-4"

@@ -30,6 +30,7 @@ const CreateClient = () => {
   const [office_email, setOfficeemail] = useState('')
   const [address, setAddress] = useState('')
   const [designation, setDesignation] = useState('')
+  const [password, setPassword] = useState('')
 
   useEffect(() => {
     if (id) {
@@ -73,6 +74,7 @@ const CreateClient = () => {
       team_lead_id: login_user && login_user._id,
     }
     if (id === null) {
+      fdata['password'] = password
       dispatch(createEmployee(fdata))
     } else {
       fdata['id'] = id
@@ -180,6 +182,24 @@ const CreateClient = () => {
                       />
                     </div>
                   </CCol>
+                  {id === null ? (
+                    <CCol xs={4}>
+                      <div className="mb-3">
+                        <CFormLabel htmlFor="name">Password</CFormLabel>
+                        <CFormInput
+                          type="text"
+                          id="name"
+                          name="password"
+                          placeholder="Enter Password"
+                          defaultValue={password}
+                          autoComplete="off"
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </div>
+                    </CCol>
+                  ) : (
+                    ''
+                  )}
                   <CCol xs={4}>
                     <div className="mb-3">
                       <CFormLabel htmlFor="name">Address</CFormLabel>

@@ -4,20 +4,23 @@ const employees = mongo.collection("tbl_employees");
 const users = mongo.collection("tbl_auths");
 const projects = mongo.collection("tbl_projects");
 const roles = mongo.collection("tbl_roles");
+const assigned_projects = mongo.collection("tbl_assigned_projects");
 
 var ObjectId = require('mongodb').ObjectID;
 
 exports.get_userdata = (req, res) => {
 
-    users.aggregate([
-        { $match: {_id: new ObjectId(req.body.user_id) }},
-        { $lookup: {
-            from:'tbl_roles',
-            localField: "role",
-            foreignField: "id",
-            as: "role_data"                                                                  
-        }},
-    ]).toArray((error, result) => {
+    if(req.body.loginType === "admin"){
+
+        users.aggregate([
+            { $match: {_id: new ObjectId(req.body.user_id) }},
+            { $lookup: {
+                from:'tbl_roles',
+                localField: "role",
+                foreignField: "id",
+                as: "role_data"                                                                  
+            }},
+        ]).toArray((error, result) => {
 
             if (error) {
                 return res.status(202).json({ message: error });
@@ -36,11 +39,43 @@ exports.get_userdata = (req, res) => {
                 });
             }
         })
+
+    }else{
+
+        employees.aggregate([
+            { $match: {_id: new ObjectId(req.body.user_id) }},
+            { $lookup: {
+                from:'tbl_roles',
+                localField: "role",
+                foreignField: "id",
+                as: "role_data"                                                                  
+            }},
+        ]).toArray((error, result) => {
+
+            if (error) {
+                return res.status(202).json({ message: error });
+            }
+
+            if (result[0]) {
+
+                var user = result[0];
+                return res.status(200).json({
+                    user: {"_id":user._id,"admin_name":user.employee_name,"email":user.office_email,"mobile":user.mobile,"user_image":user.user_image,"role_data":user.role_data,"role":user.role},
+                });
+                    
+            } else {
+                return res.status(202).json({
+                    message: error
+                });
+            }
+        })
+
+    }
 }
 
 exports.get_roles = (req, res) => {
 
-    roles.find({id:{$ne:1}})
+    roles.find({id:{$ne:3}})
         .toArray((error, result) => {
 
             if (error) {
@@ -113,9 +148,11 @@ exports.get_dashboarddata = (req, res) => {
     const user_id = req.body.user_id;
 
     var empquery = {};
+    var projectquery = {};
     var tlquery = {};
     if(role == 2){
         empquery["team_lead"] = user_id;
+        projectquery["team_lead"] = user_id;
     }else if(role == 1){
         tlquery["role"] = { "$exists": true, "$in": [2] }
     }
@@ -140,16 +177,33 @@ exports.get_dashboarddata = (req, res) => {
 
             employees.find(empquery).count(function(err,count){
 
-                projects.find({}).count(function(err,pcount){
+                if(role == 1){
 
-                    result[0]["EMPCount"] = count;
-                    result[0]["PROJECTCount"] = pcount;
+                    projects.find({}).count(function(err,pcount){
 
-                    return res.status(200).json({
-                        dashboard_data: result,
+                        result[0]["EMPCount"] = count;
+                        result[0]["PROJECTCount"] = pcount;
+
+                        return res.status(200).json({
+                            dashboard_data: result,
+                        });
+
                     });
 
-                });
+                }else{
+
+                    assigned_projects.find(projectquery).count(function(err,pcount){
+
+                        result[0]["EMPCount"] = count;
+                        result[0]["PROJECTCount"] = pcount;
+
+                        return res.status(200).json({
+                            dashboard_data: result,
+                        });
+
+                    });
+
+                }
 
             })
                 

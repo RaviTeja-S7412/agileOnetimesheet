@@ -140,7 +140,7 @@ export default (state = initState, action) => {
         ...state,
         loading: false,
         get_allclients: false,
-        all_clients: action.payload.all_clients,
+        all_clients: action.payload.all_projects,
       }
       break
     case clientConstants.GET_ALLCLIENTS_FAILURE:

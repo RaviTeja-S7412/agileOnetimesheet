@@ -9,6 +9,10 @@ const initState = {
   get_employees: true,
   get_singleemployee: true,
   is_employee_added: false,
+  assigned_projects: [],
+  get_assigned_projects: true,
+  get_singleassigned_project: true,
+  is_assigned_project_added: false,
   pageIndex: 0,
   total_pages: 0,
   total_users_count: 0,
@@ -146,6 +150,137 @@ export default (state = initState, action) => {
         ...state,
         loading: false,
         get_singleemployee: false,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.SAVE_ASSIGNPROJECTS_REQUEST:
+      state = {
+        ...state,
+        loading: true,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+      }
+      break
+    case employeeConstants.SAVE_ASSIGNPROJECTS_SUCCESS:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: true,
+        is_assigned_project_added: true,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.SAVE_ASSIGNPROJECTS_FAILURE:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.UPDATE_ASSIGNPROJECTS_REQUEST:
+      state = {
+        ...state,
+        loading: true,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+      }
+      break
+    case employeeConstants.UPDATE_ASSIGNPROJECTS_SUCCESS:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: true,
+        is_assigned_project_added: true,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.UPDATE_ASSIGNPROJECTS_FAILURE:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.DELETE_ASSIGNPROJECTS_REQUEST:
+      state = {
+        ...state,
+        loading: true,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+      }
+      break
+    case employeeConstants.DELETE_ASSIGNPROJECTS_SUCCESS:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: true,
+        is_assigned_project_added: true,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.DELETE_ASSIGNPROJECTS_FAILURE:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.GET_ASSIGNPROJECTS_REQUEST:
+      state = {
+        ...state,
+        loading: true,
+        get_assigned_projects: true,
+        is_assigned_project_added: false,
+      }
+      break
+    case employeeConstants.GET_ASSIGNPROJECTS_SUCCESS:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: false,
+        is_assigned_project_added: false,
+        assigned_projects: action.payload.total_users,
+        pageIndex: action.payload.pageIndex,
+        total_pages: action.payload.total_pages,
+        total_users_count: action.payload.total_users_count,
+        prevPage: action.payload.prevPage,
+        nextPage: action.payload.nextPage,
+      }
+      break
+    case employeeConstants.GET_ASSIGNPROJECTS_FAILURE:
+      state = {
+        ...state,
+        loading: false,
+        get_assigned_projects: false,
+        message: action.payload.message,
+      }
+      break
+    case employeeConstants.GET_SINGLEASSIGNPROJECTS_REQUEST:
+      state = {
+        ...state,
+        loading: true,
+        get_singleassigned_project: true,
+      }
+      break
+    case employeeConstants.GET_SINGLEASSIGNPROJECTS_SUCCESS:
+      state = {
+        ...state,
+        loading: false,
+        get_singleassigned_project: false,
+        assign_project_data: action.payload,
+      }
+      break
+    case employeeConstants.GET_SINGLEASSIGNPROJECTS_FAILURE:
+      state = {
+        ...state,
+        loading: false,
+        get_singleassigned_project: false,
         message: action.payload.message,
       }
       break

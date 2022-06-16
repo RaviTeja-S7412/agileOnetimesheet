@@ -4,8 +4,12 @@ import axios from '../helpers/axios'
 export const get_userdata = () => {
   return async (dispatch) => {
     let udata = JSON.parse(localStorage.getItem('user'))
+    let loginType = localStorage.getItem('loginType')
     // dispatch({ type: authConstants.GET_USERDATA });
-    const res = await axios.post(`/admin/get_userdata`, { user_id: udata._id })
+    const res = await axios.post(`/admin/get_userdata`, {
+      user_id: udata._id,
+      loginType: loginType,
+    })
 
     if (res.status === 200) {
       return dispatch({

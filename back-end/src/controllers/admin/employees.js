@@ -1,4 +1,5 @@
 const mongo = require('../../connection.js').getDb();
+const bcrypt = require('bcrypt');
 
 const employees = mongo.collection("tbl_employees");
 const assigned_projects = mongo.collection("tbl_assigned_projects");
@@ -23,6 +24,7 @@ exports.create_employee = (req, res) => {
     const data = {
         "employee_name": req.body.employee_name,
         "employee_id": req.body.employee_id,
+        "password": bcrypt.hashSync(req.body.password, 10),
         "mobile_number": req.body.mobile_number,
         "email": req.body.email,
         "office_email": req.body.office_email,
@@ -32,7 +34,9 @@ exports.create_employee = (req, res) => {
         "team_lead": req.body.team_lead_id,
         "updated_date": "",
         "status" : 1,
-        "deleted" : 0
+        "deleted" : 0,
+        "role" : 3,
+        "user_image" : ""
     }
     
     employees.find({ employee_id: req.body.employee_id }).toArray((error, result) => {
@@ -290,15 +294,33 @@ exports.get_assigned_projects = (req, res) => {
                 ] 
             },
         },
+        {$project: {
+            project_id:1,
+            employees:1,
+            created_date:1,
+            project_id:{
+               $toObjectId:"$project_id"
+            },
+         }},
         { $lookup: {
             from:'tbl_projects',
             localField: "project_id",
             foreignField: "_id",
+            pipeline: [
+                { "$project": { project_name: 1, client_name: 1 }}
+            ],
             as: "project_data"                                                                  
         }},
-        {$project: {
-            "project_data": {$arrayElemAt: [ "$project_data",0 ] },
+        { $lookup: {
+            from: "tbl_employees",
+            let: { "employees": "$employees" },
+            pipeline: [
+              { "$match": { "$expr": { "$in": [{ "$toString": "$_id" }, "$$employees"] }}},
+              { "$project": { employee_name: 1, employee_id: 1 }}
+            ],
+            as: "employee_data"
         }}
+
     ])
     .toArray(function (err, db_data) {
 
@@ -308,11 +330,20 @@ exports.get_assigned_projects = (req, res) => {
 
             if(db_data.length > 0){
                 db_data.forEach((element) => {
-                  
+                    
+                    var employees = [];
+                    if(element.employee_data.length > 0){
+                        element.employee_data.forEach((emp) => {
+                            employees.push(emp.employee_name);
+                        })
+                    }    
+
                     data.push({
                         "id": element._id,
-                        "project_id": element.project_id,
-                        "project_name": element.project_data,
+                        "client_name": element.project_data.length > 0 ?  element.project_data[0].client_name : '',
+                        "project_name": element.project_data.length > 0 ?  element.project_data[0].project_name : '',
+                        "employees": employees.join(', '),
+                        "created_date": new Date(element.created_date).toLocaleDateString('en-US')
                     })
 
                 });
@@ -403,6 +434,8 @@ exports.update_assignproject = (req, res) => {
         "updated_date": new Date(),
         "team_lead": req.body.team_lead,
     }
+
+    var errors = [];
     
     assigned_projects.find({ project_id: req.body.project_id }).toArray((error, result) => {
         if (result.length > 0) {
@@ -411,18 +444,93 @@ exports.update_assignproject = (req, res) => {
             }
         }
         
-        assigned_projects.updateOne({_id:new ObjectId(req.body.id)}, {$set: data}, function (error, result) {
-            if (error) {
-                return res.status(202).json({
-                    message: 'error occured'
-                });
-            }
+        if(errors.length == 0){
+            assigned_projects.updateOne({_id:new ObjectId(req.body.id)}, {$set: data}, function (error, result) {
+                if (error) {
+                    return res.status(202).json({
+                        message: 'error occured'
+                    });
+                }
 
-            if (result) {
-                return res.status(200).json({
-                    message: "Project Successfully Assigned To Employees"
-                })
-            }
-        });
+                if (result) {
+                    return res.status(200).json({
+                        message: "Project Successfully Assigned To Employees"
+                    })
+                }
+            });
+        }else{
+    
+            return res.status(202).json(errors[0]);
+    
+        }
+
     });
+}
+
+exports.get_singleassignproject = (req, res) => {
+
+    const id = req.body.user_id;
+    if(!id){
+        return res.status(202).json({ message: "ID is Required." });
+    }
+
+    assigned_projects.aggregate([
+        {
+            $match: {_id: new ObjectId(id)},
+        },
+        { $lookup: {
+            from: "tbl_employees",
+            let: { "employees": "$employees" },
+            pipeline: [
+              { "$match": { "$expr": { "$in": [{ "$toString": "$_id" }, "$$employees"] }}},
+              { "$project": { employee_name: 1 }}
+            ],
+            as: "employee_data"
+        }}
+    ]
+    ).toArray((error, result) => {
+        
+        const data = []
+        if (result.length > 0) {
+
+            var apdata = result[0];
+            var employees = [];
+            apdata.employee_data.forEach((emp) => {
+                employees.push({
+                    "label": emp.employee_name,
+                    "value": emp._id
+                })        
+            });
+            data.push({
+                "_id": apdata._id,
+                "project_id": apdata.project_id,
+                "employees": employees,
+            })
+
+            return res.status(200).json({ assigned_project_data: data[0] });
+        }else{
+            return res.status(202).json({ message: "Assigned Project Not Found." });
+        }
+
+    });
+
+}
+
+exports.deleteAssignproject = (req, res) => {
+
+    const id = req.body.user_id;
+    if(!id){
+        return res.status(202).json({ message: "ID is Required." });
+    }
+
+    assigned_projects.deleteOne({ _id: new ObjectId(id) },(error, result) => {
+        
+        if (result.deletedCount > 0) {
+            return res.status(200).json({ message: "Assigned Project Deleted Successfully" });
+        }else{
+            return res.status(202).json({ message: "Assigned Project Not Found" });
+        }
+
+    });
+
 }

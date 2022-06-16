@@ -5,6 +5,7 @@ const multer  = require('multer');
 const path = require('path');
 
 const users = mongo.collection("tbl_auths");
+const employees = mongo.collection("tbl_employees");
 var ObjectId = require('mongodb').ObjectID;
 
 const storage = multer.diskStorage({
@@ -75,8 +76,9 @@ exports.signup = (req, res) => {
 
 exports.signin = (req, res) => {
     
-    users.find({ email: req.body.email })
-        .toArray((error, result) => {
+    if(req.body.loginref === "admin"){
+
+        users.find({ email: req.body.email }).toArray((error, result) => {
             if (error) {
                 return res.status(202).json({ message: error });
             }
@@ -92,6 +94,7 @@ exports.signin = (req, res) => {
                     res.status(200).json({
                         token,
                         user: user,
+                        loginType: "admin",
                         message : "Logged in successfully"
                     });
                 } else {
@@ -106,6 +109,42 @@ exports.signin = (req, res) => {
                 });
             }
         })
+
+    }else{
+
+        employees.find({ office_email: req.body.email }).toArray((error, result) => {
+            if (error) {
+                return res.status(202).json({ message: error });
+            }
+
+            if (result[0]) {
+
+                var user = result[0];
+                var data = bcrypt.compareSync(req.body.password, user.password);
+                
+                if (data) {
+                    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+                    res.cookie("token", token, { expiresIn: "1d" });
+                    res.status(200).json({
+                        token,
+                        loginType: "employee",
+                        user: {"_id":user._id,"admin_name":user.employee_name,"email":user.email,"mobile":user.mobile,"user_image":user.user_image,"role":user.role},
+                        message : "Logged in successfully"
+                    });
+                } else {
+                    return res.status(202).json({
+                        message: "Invalid Password"
+                    });
+                }
+
+            } else {
+                return res.status(202).json({
+                    message: "User not registered with us."
+                });
+            }
+        })
+
+    }
 }
 
 exports.updateProfile = [upload.single("file"),function(req,res){
