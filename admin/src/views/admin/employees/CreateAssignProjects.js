@@ -43,7 +43,7 @@ const CreateClient = () => {
       setUProject('')
     }
     if (get_employee && get_employee.is_assigned_project_added) {
-      location('/admin/employees/assign-projects')
+      location(get_allemployees.get_data.uploads_folder + 'admin/employees/assign-projects')
     }
   }, [id, get_employee.is_assigned_project_added])
 

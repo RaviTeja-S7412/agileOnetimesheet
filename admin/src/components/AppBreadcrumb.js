@@ -11,6 +11,7 @@ const AppBreadcrumb = () => {
   const Profile = React.lazy(() => import('../views/admin/users/Profile'))
   const dynamicroutes = useSelector((state) => state.routes)
   const [routesData, setroutesData] = useState([])
+  const udata = useSelector((state) => state.admin)
 
   useEffect(() => {
     const urls = []
@@ -65,7 +66,9 @@ const AppBreadcrumb = () => {
 
   return (
     <CBreadcrumb className="m-0 ms-2">
-      <CBreadcrumbItem href="/">Home</CBreadcrumbItem>
+      <CBreadcrumbItem href={udata.get_data.uploads_folder + 'admin/dashboard'}>
+        Home
+      </CBreadcrumbItem>
       {breadcrumbs.map((breadcrumb, index) => {
         return (
           <CBreadcrumbItem

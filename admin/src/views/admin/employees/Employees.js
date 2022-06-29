@@ -25,6 +25,7 @@ const Employees = () => {
   const dispatch = useDispatch()
   const location = useNavigate()
   const login_user = localStorage.getItem('user') && JSON.parse(localStorage.getItem('user'))
+  const auth_data = useSelector((state) => state.admin)
 
   const handleDelete = (id) => {
     swal({
@@ -47,10 +48,10 @@ const Employees = () => {
   }
 
   const handleEdit = (id) => {
-    location('/admin/employees/update-employee?id='+id)
+    location(auth_data.get_data.uploads_folder + 'admin/employees/update-employee?id='+id)
   }
   const handleCreate = () => {
-    location('/admin/employees/create-employee')
+    location(auth_data.get_data.uploads_folder + 'admin/employees/create-employee')
   }
 
   const columns = useMemo(

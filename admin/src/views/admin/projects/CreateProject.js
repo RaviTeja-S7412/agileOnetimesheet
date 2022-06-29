@@ -21,7 +21,8 @@ const CreateClient = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const id = searchParams.get('id')
   const get_client = useSelector((state) => state.clients)
-  console.log(get_client)
+  const auth = JSON.parse(localStorage.getItem('user'))
+  const udata = useSelector((state) => state.admin)
   const [client_name, setClientname] = useState('')
   const [project_name, setProjectname] = useState('')
   const [project_start_date, setProjectstartdate] = useState('')
@@ -39,7 +40,7 @@ const CreateClient = () => {
       setProjectdescription('')
     }
     if (get_client && get_client.is_client_added) {
-      location('/admin/projects')
+      location(udata.get_data.uploads_folder + 'admin/projects')
     }
   }, [id, get_client.is_client_added])
 

@@ -128,7 +128,7 @@ exports.signin = (req, res) => {
                     res.status(200).json({
                         token,
                         loginType: "employee",
-                        user: {"_id":user._id,"admin_name":user.employee_name,"email":user.email,"mobile":user.mobile,"user_image":user.user_image,"role":user.role},
+                        user: {"_id":user._id,"admin_name":user.employee_name,"email":user.email,"mobile":user.mobile,"user_image":user.user_image,"role":user.role,"team_lead":user.team_lead},
                         message : "Logged in successfully"
                     });
                 } else {
@@ -194,16 +194,33 @@ exports.get_singleuser = (req, res) => {
     if(!id){
         return res.status(202).json({ message: "User ID is Required." });
     }
+    
+    if (req.body.loginType === "admin") {
 
-    users.find({ _id: new ObjectId(id) }).toArray((error, result) => {
-        
-        if (result.length > 0) {
-            return res.status(200).json({ user_data: result[0] });
-        }else{
-            return res.status(202).json({ message: "User Not Found." });
-        }
+        users.find({ _id: new ObjectId(id) }).toArray((error, result) => {
+            
+            if (result.length > 0) {
+                return res.status(200).json({ user_data: result[0] });
+            }else{
+                return res.status(202).json({ message: "User Not Found." });
+            }
 
-    });
+        });
+
+    } else {
+
+        employees.find({ _id: new ObjectId(id) }).toArray((error, result) => {
+            
+            const user = result[0]
+            if (result.length > 0) {
+                return res.status(200).json({ user_data: {"_id": user._id,"admin_name":user.employee_name,"email":user.office_email,"mobile":user.mobile_number,"user_image":user.user_image,"role_data":user.role_data,"role":user.role,"uploads_folder":"/timesheet/"} });
+            } else {
+                return res.status(202).json({ message: "User Not Found." });
+            }
+
+        });
+
+    }
 
 }
 

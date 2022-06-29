@@ -1,0 +1,8 @@
+textarea.form-control {
+    height: 20px !important;
+}
+
+.rdt_TableHeadRow {
+  background-color: #0e4d9b !important;
+  color: white;
+}

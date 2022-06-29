@@ -390,7 +390,7 @@ exports.create_assignproject = (req, res) => {
         "deleted" : 0
     }
     
-    assigned_projects.find({ project_id: req.body.project_id }).toArray((error, result) => {
+    assigned_projects.find({ project_id: req.body.project_id, team_lead: req.body.team_lead }).toArray((error, result) => {
         if (result.length > 0) {
             return res.status(202).json({
                 message: 'Already Assigned Employees To This Project.'

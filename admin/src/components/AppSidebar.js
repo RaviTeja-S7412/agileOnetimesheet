@@ -74,12 +74,16 @@ const AppSidebar = () => {
       <CSidebarBrand className="d-none d-md-flex" to="/">
         {/* <CIcon className="sidebar-brand-full" icon={logoNegative} height={35} />
         <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} /> */}
-        <img src={'/images/logo.png'} height="50px" />
+        <img src={udata.get_data.uploads_folder + 'images/logo.png'} height="50px" />
       </CSidebarBrand>
       <CSidebarNav>
         <div className="container" align="center">
           <CAvatar
-            src={udata.get_data && udata.get_data.user_image ? udata.get_data.user_image : avatar8}
+            src={
+              udata.get_data && udata.get_data.user_image
+                ? udata.get_data.uploads_folder + udata.get_data.user_image
+                : avatar8
+            }
             size="xl"
           />
           <br />

@@ -22,6 +22,9 @@ const Clients = () => {
   const [searchText, setSearchtext] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const get_clients = useSelector((state) => state.clients)
+  const auth = JSON.parse(localStorage.getItem('user'))
+  const udata = useSelector((state) => state.admin)
+
   const dispatch = useDispatch()
   const location = useNavigate()
 
@@ -46,11 +49,11 @@ const Clients = () => {
   }
 
   const handleEdit = (id) => {
-    location('/admin/projects/updateProject?id='+id)
+    location(udata.get_data.uploads_folder + 'admin/projects/updateProject?id='+id)
   }
 
   const handleCreate = () => {
-    location('/admin/projects/createProject')
+    location(udata.get_data.uploads_folder + 'admin/projects/createProject')
   }
 
   const columns = useMemo(

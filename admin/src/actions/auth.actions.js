@@ -1,6 +1,7 @@
 import { authConstants } from './constants'
 import axios from '../helpers/axios'
 import { get_userdata } from '../helpers/Admin'
+import store from 'src/store'
 
 export const login = (user) => {
   return async (dispatch) => {
@@ -204,6 +205,7 @@ export const signout = () => {
 
     if (res.status === 200) {
       localStorage.clear()
+      dispatch({ type: 'USER_LOGOUT' })
       dispatch({ type: authConstants.LOGOUT_SUCCESS })
     } else {
       dispatch({

@@ -31,7 +31,7 @@ export default function App() {
 
   useEffect(() => {
     if (!token) {
-      history('/')
+      history('/timesheet/admin/login')
     } else {
       dispatch(get_userdata())
       if (urls && urls.get_routes) {
@@ -45,8 +45,8 @@ export default function App() {
   return (
     <Suspense fallback={loading}>
       <Routes>
-        <Route exact path="/" name="Login Page" element={<Login />} />
-        <Route exact path="/admin/login" name="Login Page" element={<Login />} />
+        <Route exact path="/timesheet/admin/login" name="Login Page" element={<Login />} />
+        <Route exact path="/timesheet/admin/login" name="Login Page" element={<Login />} />
         <Route exact path="/register" name="Register Page" element={<Register />} />
         <Route exact path="/admin/404" name="Page 404" element={<Page404 />} />
         <Route exact path="/500" name="Page 500" element={<Page500 />} />

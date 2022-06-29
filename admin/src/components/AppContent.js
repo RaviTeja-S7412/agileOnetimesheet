@@ -9,6 +9,8 @@ const AppContent = () => {
   const Login = React.lazy(() => import('../views/pages/login/Login'))
   const Profile = React.lazy(() => import('../views/admin/users/Profile'))
   const dynamicroutes = useSelector((state) => state.routes)
+  const auth_data = useSelector((state) => state.admin)
+
   const [routesData, setroutesData] = useState([])
 
   useEffect(() => {
@@ -27,10 +29,31 @@ const AppContent = () => {
   }, [dynamicroutes.getAllurlpaths])
 
   const routes = [
-    { path: '/', exact: true, name: 'Home', element: Login, assignto: [] },
-    { path: '/admin/dashboard', name: 'Dashboard', element: Dashboard, assignto: [] },
-    { path: '/admin/login', name: 'Login', element: Login, assignto: [] },
-    { path: '/admin/updateProfile', name: 'Update Profile', element: Profile, assignto: [] },
+    {
+      path: auth_data.get_data.uploads_folder,
+      exact: true,
+      name: 'Home',
+      element: Login,
+      assignto: [],
+    },
+    {
+      path: auth_data.get_data.uploads_folder + 'admin/dashboard',
+      name: 'Dashboard',
+      element: Dashboard,
+      assignto: [],
+    },
+    {
+      path: auth_data.get_data.uploads_folder + 'admin/login',
+      name: 'Login',
+      element: Login,
+      assignto: [],
+    },
+    {
+      path: auth_data.get_data.uploads_folder + 'admin/updateProfile',
+      name: 'Update Profile',
+      element: Profile,
+      assignto: [],
+    },
   ]
   routesData.forEach((route) => {
     routes.push(route)
@@ -53,10 +76,19 @@ const AppContent = () => {
                 />
               )
             ) : (
-              <Route key={idx} path={route.path} element={<Navigate to="/admin/404" replace />} />
+              <Route
+                key={idx}
+                path={route.path}
+                element={<Navigate to={auth_data.get_data.uploads_folder + 'admin/404'} replace />}
+              />
             )
           })}
-          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route
+            path="/"
+            element={
+              <Navigate to={auth_data.get_data.uploads_folder + 'admin/dashboard'} replace />
+            }
+          />
         </Routes>
       </Suspense>
     </CContainer>

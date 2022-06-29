@@ -25,6 +25,7 @@ const Users = () => {
   const dispatch = useDispatch()
   const location = useNavigate()
   const login_user = JSON.parse(localStorage.getItem('user'))
+  const udata = useSelector((state) => state.admin)
 
   const handleDelete = (id) => {
     swal({
@@ -47,7 +48,7 @@ const Users = () => {
   }
 
   const editUser = (id) => {
-      location('/admin/team-leads/update-team-lead?id='+id)
+      location(udata.get_data.uploads_folder + 'admin/team-leads/update-team-lead?id='+id)
   }
 
   const columns = useMemo(

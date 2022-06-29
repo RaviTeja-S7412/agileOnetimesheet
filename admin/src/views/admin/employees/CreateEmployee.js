@@ -22,6 +22,7 @@ const CreateClient = () => {
   const id = searchParams.get('id')
   const get_employee = useSelector((state) => state.employees)
   const login_user = localStorage.getItem('user') && JSON.parse(localStorage.getItem('user'))
+  const auth_data = useSelector((state) => state.admin)
 
   const [employee_id, setEmployeeid] = useState('')
   const [employee_name, setEmployeename] = useState('')
@@ -45,7 +46,7 @@ const CreateClient = () => {
       setDesignation('')
     }
     if (get_employee && get_employee.is_employee_added) {
-      location('/admin/employees')
+      location(auth_data.get_data.uploads_folder + 'admin/employees')
     }
   }, [id, get_employee.is_employee_added])
 

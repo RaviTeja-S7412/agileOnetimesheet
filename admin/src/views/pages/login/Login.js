@@ -28,6 +28,7 @@ const Login = () => {
   const dispatch = useDispatch()
   const token = window.localStorage.getItem('token')
   const udata = window.localStorage.getItem('user')
+  const auth_data = useSelector((state) => state.admin)
 
   const userLogin = (e) => {
     e.preventDefault()
@@ -40,19 +41,31 @@ const Login = () => {
   }
 
   if (token && udata) {
-    return <Navigate to={`/admin/dashboard`} />
+    if (auth_data.get_data.uploads_folder)
+      return <Navigate to={auth_data.get_data.uploads_folder + `admin/dashboard`} />
   }
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+    <div
+      className="bg-light min-vh-100 d-flex flex-row align-items-center"
+      style={{
+        background: `url("/timesheet/images/1.jpg") left top no-repeat`,
+        backgroundSize: 'cover',
+      }}
+    >
       <CContainer>
-        <CRow className="justify-content-center">
+        <CRow className="justify-content-left">
           <CCol md={4}>
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
                   <CForm onSubmit={userLogin}>
-                    <h1>Login</h1>
+                    {/* <h1>Login</h1> */}
+                    <div className="row">
+                      <div className="col align-self-center">
+                        <img src={'/timesheet/images/logo1.png'} style={{ width: '100%' }} />
+                      </div>
+                    </div>
                     <p className="text-medium-emphasis">Sign In to your account</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>

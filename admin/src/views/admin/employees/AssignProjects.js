@@ -47,11 +47,11 @@ const Employees = () => {
   }
 
   const handleEdit = (id) => {
-    location('/admin/employees/update-assigned-project?id='+id)
+    location('/timesheet/admin/employees/update-assigned-project?id='+id)
   }
 
   const handleCreate = () => {
-    location('/admin/employees/create-assigned-project')
+    location('/timesheet/admin/employees/create-assigned-project')
   }
 
   const columns = useMemo(

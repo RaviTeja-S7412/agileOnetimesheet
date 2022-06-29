@@ -39,7 +39,7 @@ const CreateUser = () => {
       setDesignation('')
     }
     if (auth && auth.is_user_added) {
-      location('/admin/team-leads')
+      location(roles.get_data.uploads_folder + 'admin/team-leads')
     }
   }, [id, auth.is_user_added, roles.get_data.role])
 

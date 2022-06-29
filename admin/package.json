@@ -2,7 +2,7 @@
   "name": "vms",
   "version": "4.2.0",
   "description": "Agile one platform",
-  "homepage": "/",
+  "homepage": "/timesheet/",
   "license": "MIT",
   "author": "Ravi Teja",
   "scripts": {
@@ -30,6 +30,8 @@
     "chart.js": "^3.7.1",
     "classnames": "^2.3.1",
     "core-js": "^3.21.1",
+    "moment": "^2.29.3",
+    "process": "^0.11.10",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-app-polyfill": "^3.0.0",
