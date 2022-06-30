@@ -84,6 +84,14 @@ exports.create_timesheet = (req, res) => {
         }
     }else if(ref == "submit"){
         var data = {
+            "start_date": req.body.start_date,
+            "end_date": req.body.end_date,
+            "week_days": req.body.week_days,
+            "task_names": req.body.task_names,
+            "start_time": req.body.start_time,
+            "finish_time": req.body.finish_time,
+            "comments": req.body.comments,
+            "total_hours": req.body.total_hours,
             "status" : 2
         }
     }
@@ -202,10 +210,19 @@ exports.update_timesheet = (req, res) => {
         }
     }else if(ref == "approve"){
         var data = {
+            "comments": req.body.comments,
             "status" : 3
         }
     }else if(ref == "submit"){
         var data = {
+            "start_date": req.body.start_date,
+            "end_date": req.body.end_date,
+            "week_days": req.body.week_days,
+            "task_names": req.body.task_names,
+            "start_time": req.body.start_time,
+            "finish_time": req.body.finish_time,
+            "comments": req.body.comments,
+            "total_hours": req.body.total_hours,
             "status" : 2
         }
     }
@@ -360,7 +377,6 @@ exports.get_singletimesheet = (req, res) => {
     const user_id = req.body.user_id;
     const sdate = req.body.sdate;
     const edate = req.body.edate;
-    console.log(req.body)
 
     var query = {};
 
@@ -371,7 +387,6 @@ exports.get_singletimesheet = (req, res) => {
         query["end_date"] = edate;
         query["employee_id"] = user_id;
     }
-
     // if(!id){
     //     return res.status(202).json({ message: "ID is Required." });
     // }
@@ -381,7 +396,7 @@ exports.get_singletimesheet = (req, res) => {
         if (result.length > 0) {
             return res.status(200).json({ timesheet_data: result[0] });
         }else{
-            return res.status(202).json({ message: "Timesheet Not Found." });
+            return res.status(202).json({ message: "Timesheet Not Updated." });
         }
 
     });

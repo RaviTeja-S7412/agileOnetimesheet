@@ -167,13 +167,13 @@ const Timesheets = () => {
                   <strong>All Timesheets</strong>
                 </CCol>
                 <CCol xs={8}>
-                  {/* { auth && auth.role === 3 ? (
+                  { auth && auth.role === 3 ? (
                     <CButton color="primary" onClick={handleCreate} size="sm" className="float-end">
                       Create
                     </CButton>
                   ) : (
                     ''
-                  ) } */}
+                  ) }
                 </CCol>
               </CRow>
             </CCardHeader>

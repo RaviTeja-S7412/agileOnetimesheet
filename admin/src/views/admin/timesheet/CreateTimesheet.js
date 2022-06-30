@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable no-undef */
 /* eslint-disable jsx-a11y/anchor-has-content */
 /* eslint-disable prettier/prettier */
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -11,6 +13,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import {CustomLoader,customStyles, Pagination} from 'src/components/datatables/index'
 import moment from 'moment'
 import './form.css'
+import { get_dashboard_data } from 'src/helpers/Admin'
+import Getlinks from './Getlinks'
 
 const CreateTimesheet = () => {
 
@@ -29,16 +33,24 @@ const CreateTimesheet = () => {
   const [sumHours, setSumhours] = useState(0)
   const [readOnly, setReadonly] = useState(false)
   const [creadOnly, setCReadonly] = useState(false)
+  const [prepageindex, setprePageindex] = useState(false)
+  const [nexpageindex, setnexPageindex] = useState(false)
+  // const [prepagenumber, setprePagenumber] = useState(0)
+  // const [nexpagenumber, setnexPagenumber] = useState(0)
+  const [prevLink, setPrevlink] = useState("#")
+  const [nextLink, setNextlink] = useState("#")
 
   const id = searchParams.get('id')
-  const sdate = searchParams.get('sdate')
-  const edate = searchParams.get('edate')
+  const st_date = searchParams.get('sdate')
+  const en_date = searchParams.get('edate')
+  var pageNumber = searchParams.get('page')
   const ref = searchParams.get('ref')
   const status = searchParams.get('status')
   const dispatch = useDispatch()
   const location = useNavigate()
   const auth = JSON.parse(localStorage.getItem('user'))
-  const udata = useSelector((state) => state.admin)
+  const admin = useSelector((state) => state.admin)
+  const dashboard_data = admin.dashboard_data && admin.dashboard_data[0]
 
   var tName = {};
   var sTime = {};
@@ -102,7 +114,7 @@ const CreateTimesheet = () => {
                         onBlur={(e) => {
                           if(id){
                             row.start_time[row.date] = e.target.value
-                            setTaskname(row.start_time)
+                            setStarttime(row.start_time)
                           }else{
                             sTime[row.date] = e.target.value
                             setStarttime(sTime)
@@ -126,7 +138,7 @@ const CreateTimesheet = () => {
                         onBlur={(e) => {
                           if(id){
                             row.finish_time[row.date] = e.target.value
-                            setTaskname(row.finish_time)
+                            setFinishtime(row.finish_time)
                           }else{
                             fTime[row.date] = e.target.value
                             setFinishtime(fTime)
@@ -190,22 +202,21 @@ const CreateTimesheet = () => {
                         }} */
                       />
       }
-
     ],
     [],
   )
 
   useEffect(() => {
-    if (sdate || id) {
+    if (st_date || id) {
 
       var query = {};
       if (id){
         query = { tid: id }
       }else{
-        query = { user_id: auth._id, sdate: sdate, edate: edate }
+        query = { user_id: auth._id, sdate: st_date, edate: en_date }
       }
-
       dispatch(get_singletimesheet(query))
+      dispatch(get_dashboard_data())
     } else {
       setTaskname([])
       setStarttime([])
@@ -214,7 +225,7 @@ const CreateTimesheet = () => {
       setTotalhours([])
     }
     if (get_timesheet && get_timesheet.is_timesheet_added) {
-      location(udata.get_data.uploads_folder + 'admin/time-sheets')
+      location(admin.get_data.uploads_folder + 'admin/time-sheets')
     }
   }, [id, get_timesheet.is_timesheet_added])
 
@@ -252,9 +263,75 @@ const CreateTimesheet = () => {
       startOfWeek = new Date(moment().startOf("isoWeek").toDate()).toLocaleDateString('en-US');
       endOfWeek = new Date(moment().endOf("isoWeek").toDate()).toLocaleDateString('en-US');
     }
-
     setStartdate(startOfWeek)
     setEnddate(endOfWeek)
+    // console.log(startDate + " " + endDate)
+
+/*     var prevStartdate = moment(endOfWeek).subtract(1, 'weeks').startOf('isoWeek').format('M/D/YYYY');
+    var prevEnddate = moment(startOfWeek).subtract(1, 'weeks').endOf('isoWeek').format('M/D/YYYY');
+    var nextStartdate = moment(endOfWeek).add(1, 'weeks').startOf('isoWeek').format('M/D/YYYY');
+    var nextEnddate = moment(startOfWeek).add(1, 'weeks').endOf('isoWeek').format('M/D/YYYY');
+    setPrevlink(admin.get_data.uploads_folder + 'admin/time-sheets/create-time-sheet?status=' + status + '&sdate=' + prevStartdate + '&edate=' + prevEnddate)
+    setNextlink(admin.get_data.uploads_folder + 'admin/time-sheets/create-time-sheet?status=' + status + '&sdate=' + nextStartdate + '&edate=' + nextEnddate) */
+
+    var preLink = "";
+    var nexLink = "";
+    var prepagenumber = 0;
+    var nexpagenumber = 0;
+    if(status === "pending"){
+
+       /* if(pageNumber == 0){
+        setprePageindex(false)
+        setnexPageindex(true)
+        nexpagenumber = parseInt(pageNumber)+1
+        nexLink = dashboard_data.PendingDates && dashboard_data.PendingDates[nexpagenumber]['id']
+      }else{
+        if(dashboard_data.PendingDates.length == parseInt(pageNumber)+1){
+          setprePageindex(true)
+          setnexPageindex(false)
+          prepagenumber = parseInt(pageNumber)-1
+          preLink = dashboard_data.PendingDates && dashboard_data.PendingDates[prepagenumber]['id']
+        }else{
+          setprePageindex(true)
+          setnexPageindex(true)
+          prepagenumber = parseInt(pageNumber)-1
+          nexpagenumber = parseInt(pageNumber)+1
+          preLink = dashboard_data.PendingDates && dashboard_data.PendingDates[prepagenumber]['id']
+          nexLink = dashboard_data.PendingDates && dashboard_data.PendingDates[nexpagenumber]['id']
+        }
+      } */
+      var links = Getlinks(pageNumber,dashboard_data.PendingDates)
+      preLink = links.preLink;
+      nexLink = links.nexLink;
+      prepagenumber = links.prepagenumber;
+      nexpagenumber = links.nexpagenumber;
+      setprePageindex(links.prePageindex)
+      setnexPageindex(links.nexPageindex)
+
+    }else if(status === "submitted"){
+
+      var links = Getlinks(pageNumber,dashboard_data.SubmittedDates)
+      preLink = links.preLink;
+      nexLink = links.nexLink;
+      prepagenumber = links.prepagenumber;
+      nexpagenumber = links.nexpagenumber;
+      setprePageindex(links.prePageindex)
+      setnexPageindex(links.nexPageindex)
+
+    }else if(status === "approved"){
+
+      var links = Getlinks(pageNumber,dashboard_data.ApprovedDates)
+      preLink = links.preLink;
+      nexLink = links.nexLink;
+      prepagenumber = links.prepagenumber;
+      nexpagenumber = links.nexpagenumber;
+      setprePageindex(links.prePageindex)
+      setnexPageindex(links.nexPageindex)
+
+    }
+
+    setPrevlink(admin.get_data.uploads_folder + 'admin/time-sheets/create-time-sheet?status=' + status + '&id=' + preLink + '&page=' + prepagenumber )
+    setNextlink(admin.get_data.uploads_folder + 'admin/time-sheets/create-time-sheet?status=' + status + '&id=' + nexLink + '&page=' + nexpagenumber )
 
     var weekDates = [];
 
@@ -277,6 +354,7 @@ const CreateTimesheet = () => {
       setData(udata)
       setWeekdays(weekDates)
 
+// readonly setup starts
       if (ref === "view") {
         setReadonly(true)
         setCReadonly(true)
@@ -294,9 +372,25 @@ const CreateTimesheet = () => {
         setReadonly(true)
         setCReadonly(false)
       }
+// end readonly setup starts
 
-  },[get_timesheet.timesheet_data, taskName && taskName[startDate]])
+// navigation setup starts
 
+
+// navigations setup ends
+
+  },[get_timesheet.timesheet_data, taskName && taskName[startDate], pageNumber])
+
+  const previousNavigate = () => {
+    setLoading(true)
+    location(prevLink)
+    setLoading(false)
+  }
+  const nextNavigate = () => {
+    setLoading(true)
+    location(nextLink)
+    setLoading(false)
+  }
   const saveData = (ref) => {
 
     const fdata = {
@@ -354,7 +448,15 @@ const CreateTimesheet = () => {
                   }
                 </CCol>
                 <CCol xs={7}>
-                  <strong>({startDate} - {endDate})</strong>
+                  <strong>
+                    { prepageindex ? (
+                        <a onClick={previousNavigate} style={{ color: "black", cursor: 'pointer' }}><i className='fa fa-chevron-left'></i> </a>
+                    ) : '' }
+                        {startDate} - {endDate}
+                    { nexpageindex ? (
+                        <a onClick={nextNavigate} style={{ color: "black", cursor: 'pointer' }}> <i className='fa fa-chevron-right'></i> </a>
+                    ) : '' }
+                  </strong>
                 </CCol>
               </CRow>
             </CCardHeader>
