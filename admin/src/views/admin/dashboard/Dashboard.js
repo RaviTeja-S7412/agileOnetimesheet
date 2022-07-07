@@ -42,7 +42,7 @@ const Dashboard = () => {
     location(
       submittedLink
         ? admin.get_data.uploads_folder +
-            'admin/time-sheets/create-time-sheet?status=submitted&id=' +
+            'admin/time-sheets/view-time-sheet?status=submitted&id=' +
             submittedLink +
             '&page=0'
         : '#',
@@ -52,7 +52,7 @@ const Dashboard = () => {
     location(
       pendingLink
         ? admin.get_data.uploads_folder +
-            'admin/time-sheets/create-time-sheet?status=pending&id=' +
+            'admin/time-sheets/update-time-sheet?status=pending&id=' +
             pendingLink +
             '&page=0'
         : '#',
@@ -62,7 +62,7 @@ const Dashboard = () => {
     location(
       approvedLink
         ? admin.get_data.uploads_folder +
-            'admin/time-sheets/create-time-sheet?status=approved&id=' +
+            'admin/time-sheets/view-time-sheet?status=approved&id=' +
             approvedLink +
             '&page=0'
         : '#',
@@ -72,7 +72,7 @@ const Dashboard = () => {
     location(
       rejectedLink
         ? admin.get_data.uploads_folder +
-            'admin/time-sheets/create-time-sheet?status=rejected&id=' +
+            'admin/time-sheets/view-time-sheet?status=rejected&id=' +
             rejectedLink +
             '&page=0'
         : '#',

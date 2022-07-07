@@ -207,8 +207,7 @@ const CreateTimesheet = () => {
   )
 
   useEffect(() => {
-    if (id) {
-
+    if (st_date || id && get_timesheet.get_singletimesheet) {
       var query = {};
       if (id){
         query = { tid: id }
@@ -216,8 +215,7 @@ const CreateTimesheet = () => {
         query = { user_id: auth._id, sdate: st_date, edate: en_date }
       }
       dispatch(get_singletimesheet(query))
-      console.log("in")
-
+      dispatch(get_dashboard_data())
     } else {
       setTaskname([])
       setStarttime([])
@@ -225,11 +223,13 @@ const CreateTimesheet = () => {
       setComments([])
       setTotalhours([])
     }
+
     if (get_timesheet && get_timesheet.is_timesheet_added) {
       dispatch(get_dashboard_data())
       location(admin.get_data.uploads_folder + 'admin/time-sheets')
     }
-  }, [id, get_timesheet.is_timesheet_added])
+    console.log(taskName)
+  }, [id, get_timesheet.is_timesheet_added, get_timesheet.get_singletimesheet])
 
   useEffect(() => {
     const singleTimesheet = get_timesheet.timesheet_data;
@@ -241,6 +241,7 @@ const CreateTimesheet = () => {
       setTotalhours(singleTimesheet && singleTimesheet.total_hours)
       sum(singleTimesheet && singleTimesheet.total_hours)
     }
+
   }, [get_timesheet.timesheet_data, id])
 
   const sum = (obj) => {
@@ -274,26 +275,6 @@ const CreateTimesheet = () => {
     var nexpagenumber = 0;
     if(status === "pending"){
 
-       /* if(pageNumber == 0){
-        setprePageindex(false)
-        setnexPageindex(true)
-        nexpagenumber = parseInt(pageNumber)+1
-        nexLink = dashboard_data.PendingDates && dashboard_data.PendingDates[nexpagenumber]['id']
-      }else{
-        if(dashboard_data.PendingDates.length == parseInt(pageNumber)+1){
-          setprePageindex(true)
-          setnexPageindex(false)
-          prepagenumber = parseInt(pageNumber)-1
-          preLink = dashboard_data.PendingDates && dashboard_data.PendingDates[prepagenumber]['id']
-        }else{
-          setprePageindex(true)
-          setnexPageindex(true)
-          prepagenumber = parseInt(pageNumber)-1
-          nexpagenumber = parseInt(pageNumber)+1
-          preLink = dashboard_data.PendingDates && dashboard_data.PendingDates[prepagenumber]['id']
-          nexLink = dashboard_data.PendingDates && dashboard_data.PendingDates[nexpagenumber]['id']
-        }
-      } */
       var links = Getlinks(pageNumber,dashboard_data.PendingDates)
       preLink = links.preLink;
       nexLink = links.nexLink;
@@ -329,7 +310,6 @@ const CreateTimesheet = () => {
 
     var weekDates = [];
 
-    console.log(startDate +" "+ endDate)
     const sdate = new Date(startOfWeek),
       edate = new Date(endOfWeek),
       diff = (edate-sdate)/864e5,
@@ -337,13 +317,14 @@ const CreateTimesheet = () => {
       dates = Array.from(
         {length: diff+1},
         (_,i) => {
-          const date = new Date(startOfWeek)
+          const date = new Date()
           date.setDate(sdate.getDate()+i)
           const [weekdayStr, dateStr] = date.toLocaleDateString('en-US',dateFormat).split(', ')
           weekDates.push({"week":weekdayStr, "date":dateStr, "task": taskName, "start_time": startTime, "finish_time": finishTime, "comments": comments, "total_hours": totalHours, "readonly": readOnly, "creadonly": creadOnly})
           return `${dateStr} ${weekdayStr}`
         }
       )
+
       const displayColumns = ["day","date","task","start_time","finish_time","comments","total_hours", "readonly", "creadonly"];
       var udata = Pagination(weekDates, 1, 1, 10, displayColumns)
       setData(udata)
@@ -363,16 +344,13 @@ const CreateTimesheet = () => {
         }else{
           setCReadonly(true)
         }
-      }else if(status === "rejected") {
-        setReadonly(true)
-        setCReadonly(true)
       }else if(auth.role === 2){
         setReadonly(true)
         setCReadonly(false)
       }
 // end readonly setup starts
-
-  },[get_timesheet.timesheet_data, taskName && taskName[startDate], pageNumber, startDate])
+      // console.log(taskName)
+  },[id, get_timesheet.timesheet_data, pageNumber, taskName && taskName[startDate]])
 
   const previousNavigate = () => {
     setLoading(true)
@@ -421,7 +399,6 @@ const CreateTimesheet = () => {
     if (auth && auth.role === 2 && status !== "approved") {
       button = <CCol xs={12} style={{ textAlign: "center" }}>
                 <CButton onClick={()=>saveData("approve")}>Approve</CButton>
-                <CButton onClick={()=>saveData("reject")} style={{ marginLeft: '10px' }}>Reject</CButton>
               </CCol>
     }
   }
@@ -437,7 +414,7 @@ const CreateTimesheet = () => {
                   { (ref === 'view') ? (
                       <strong>View Timesheet</strong>
                     ) : (
-                    <strong style={{ textTransform: "capitalize" }}>{ status !== null ? status : id === null ? 'Create' : 'Update' } Timesheet</strong>
+                    <strong>{id === null ? 'Create' : 'Update'} Timesheet</strong>
                     )
                   }
                 </CCol>

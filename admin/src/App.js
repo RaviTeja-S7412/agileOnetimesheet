@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import './scss/style.scss'
 import { get_dashboard_data, get_userdata } from './helpers/Admin'
 import { getRoutes } from './actions/routes.actions'
+import { authConstants, timesheetConstants } from './actions/constants'
 
 const loading = (
   <div className="pt-3 text-center">
@@ -33,15 +34,27 @@ export default function App() {
     if (!token) {
       history('/timesheet/admin/login')
     } else {
-      dispatch(get_userdata())
+      if (!admin.get_data) {
+        dispatch(get_userdata())
+      }
       if (urls && urls.get_routes) {
         dispatch(getRoutes())
       }
       if (admin.get_dashboard_data) {
         dispatch(get_dashboard_data())
       }
+      dispatch({ type: timesheetConstants.GET_TIMESHEETS_REQUEST })
+      dispatch({ type: timesheetConstants.GET_SINGLETIMESHEET_REQUEST })
     }
-  }, [auth.authenticate, dispatch, history, token, urls.get_routes, admin.get_dashboard_data])
+  }, [
+    auth.authenticate,
+    dispatch,
+    history,
+    token,
+    urls.get_routes,
+    admin.get_dashboard_data,
+    admin.get_data,
+  ])
   return (
     <Suspense fallback={loading}>
       <Routes>

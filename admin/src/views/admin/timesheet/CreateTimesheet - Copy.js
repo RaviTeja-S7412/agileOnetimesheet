@@ -8,7 +8,7 @@ import '@coreui/coreui/dist/css/coreui.css'
 import DataTable from 'react-data-table-component'
 import { CCard, CRow, CCol, CCardHeader, CCardBody, CButton, CFormTextarea, CFormInput } from '@coreui/react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Create_Timesheet, get_singletimesheet, updateTimesheet } from 'src/actions/timesheets.actions'
+import { Create_Timesheet, updateTimesheet } from 'src/actions/timesheets.actions'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {CustomLoader,customStyles, Pagination} from 'src/components/datatables/index'
 import moment from 'moment'
@@ -35,8 +35,6 @@ const CreateTimesheet = () => {
   const [creadOnly, setCReadonly] = useState(false)
   const [prepageindex, setprePageindex] = useState(false)
   const [nexpageindex, setnexPageindex] = useState(false)
-  // const [prepagenumber, setprePagenumber] = useState(0)
-  // const [nexpagenumber, setnexPagenumber] = useState(0)
   const [prevLink, setPrevlink] = useState("#")
   const [nextLink, setNextlink] = useState("#")
 
@@ -50,7 +48,6 @@ const CreateTimesheet = () => {
   const location = useNavigate()
   const auth = JSON.parse(localStorage.getItem('user'))
   const admin = useSelector((state) => state.admin)
-  const dashboard_data = admin.dashboard_data && admin.dashboard_data[0]
 
   var tName = {};
   var sTime = {};
@@ -83,18 +80,12 @@ const CreateTimesheet = () => {
                         name="task_name"
                         required
                         placeholder="Task Name"
-                        defaultValue={row.task && row.task[row.date]}
                         autoComplete="off"
                         style={{marginTop: "10px", marginBottom: "10px" }}
                         readOnly={row.readonly}
                         onBlur={(e) => {
-                          if(id){
-                            row.task[row.date] = e.target.value
-                            setTaskname(row.task)
-                          }else{
-                            tName[row.date] = e.target.value
-                            setTaskname(tName)
-                          }
+                          tName[row.date] = e.target.value
+                          setTaskname(tName)
                         }}
                       />
       },
@@ -108,17 +99,11 @@ const CreateTimesheet = () => {
                         name="client_name"
                         required
                         placeholder="Task Name"
-                        defaultValue={row.start_time && row.start_time[row.date]}
                         autoComplete="off"
                         readOnly={row.readonly}
                         onBlur={(e) => {
-                          if(id){
-                            row.start_time[row.date] = e.target.value
-                            setStarttime(row.start_time)
-                          }else{
-                            sTime[row.date] = e.target.value
-                            setStarttime(sTime)
-                          }
+                          sTime[row.date] = e.target.value
+                          setStarttime(sTime)
                         }}
                       />
       },
@@ -133,16 +118,10 @@ const CreateTimesheet = () => {
                         required
                         placeholder="Task Name"
                         readOnly={row.readonly}
-                        defaultValue={row.finish_time && row.finish_time[row.date]}
                         autoComplete="off"
                         onBlur={(e) => {
-                          if(id){
-                            row.finish_time[row.date] = e.target.value
-                            setFinishtime(row.finish_time)
-                          }else{
-                            fTime[row.date] = e.target.value
-                            setFinishtime(fTime)
-                          }
+                          fTime[row.date] = e.target.value
+                          setFinishtime(fTime)
                         }}
                       />
       },
@@ -157,17 +136,11 @@ const CreateTimesheet = () => {
                         required
                         style={{marginTop: "10px", marginBottom: "10px" }}
                         placeholder="Comments"
-                        defaultValue={row.comments && row.comments[row.date]}
                         autoComplete="off"
                         readOnly={row.creadonly}
                         onBlur={(e) => {
-                          if(id){
-                            row.comments[row.date] = e.target.value
-                            setComments(row.comments)
-                          }else{
-                            aComments[row.date] = e.target.value
-                            setComments(aComments)
-                          }
+                          aComments[row.date] = e.target.value
+                          setComments(aComments)
                         }}
                       />
       },
@@ -182,24 +155,14 @@ const CreateTimesheet = () => {
                         name="client_name"
                         required
                         placeholder="Hrs"
-                        defaultValue={row.total_hours && row.total_hours[row.date]}
                         readOnly={row.readonly}
                         autoComplete="off"
                         min={0}
                         onBlur={(e) => {
-                          if(id){
-                            row.total_hours[row.date] = e.target.value
-                            setTotalhours(row.total_hours)
-                            sum(row.total_hours)
-                          }else{
-                            aTotalhours[row.date] = e.target.value
-                            setTotalhours(aTotalhours)
-                            sum(aTotalhours)
-                          }
+                          aTotalhours[row.date] = e.target.value
+                          setTotalhours(aTotalhours)
+                          sum(aTotalhours)
                         }}
-                        /* onChange={(e) => {
-                          checkTotal(e.target.value, row.date)
-                        }} */
                       />
       }
     ],
@@ -207,41 +170,14 @@ const CreateTimesheet = () => {
   )
 
   useEffect(() => {
-    if (id) {
 
-      var query = {};
-      if (id){
-        query = { tid: id }
-      }else{
-        query = { user_id: auth._id, sdate: st_date, edate: en_date }
-      }
-      dispatch(get_singletimesheet(query))
-      console.log("in")
-
-    } else {
-      setTaskname([])
-      setStarttime([])
-      setFinishtime([])
-      setComments([])
-      setTotalhours([])
-    }
     if (get_timesheet && get_timesheet.is_timesheet_added) {
       dispatch(get_dashboard_data())
       location(admin.get_data.uploads_folder + 'admin/time-sheets')
     }
-  }, [id, get_timesheet.is_timesheet_added])
 
-  useEffect(() => {
-    const singleTimesheet = get_timesheet.timesheet_data;
-    if (singleTimesheet) {
-      setTaskname(singleTimesheet && singleTimesheet.task_names)
-      setStarttime(singleTimesheet && singleTimesheet.start_time)
-      setFinishtime(singleTimesheet && singleTimesheet.finish_time)
-      setComments(singleTimesheet && singleTimesheet.comments)
-      setTotalhours(singleTimesheet && singleTimesheet.total_hours)
-      sum(singleTimesheet && singleTimesheet.total_hours)
-    }
-  }, [get_timesheet.timesheet_data, id])
+  }, [get_timesheet.is_timesheet_added])
+
 
   const sum = (obj) => {
     var sum = 0;
@@ -274,47 +210,7 @@ const CreateTimesheet = () => {
     var nexpagenumber = 0;
     if(status === "pending"){
 
-       /* if(pageNumber == 0){
-        setprePageindex(false)
-        setnexPageindex(true)
-        nexpagenumber = parseInt(pageNumber)+1
-        nexLink = dashboard_data.PendingDates && dashboard_data.PendingDates[nexpagenumber]['id']
-      }else{
-        if(dashboard_data.PendingDates.length == parseInt(pageNumber)+1){
-          setprePageindex(true)
-          setnexPageindex(false)
-          prepagenumber = parseInt(pageNumber)-1
-          preLink = dashboard_data.PendingDates && dashboard_data.PendingDates[prepagenumber]['id']
-        }else{
-          setprePageindex(true)
-          setnexPageindex(true)
-          prepagenumber = parseInt(pageNumber)-1
-          nexpagenumber = parseInt(pageNumber)+1
-          preLink = dashboard_data.PendingDates && dashboard_data.PendingDates[prepagenumber]['id']
-          nexLink = dashboard_data.PendingDates && dashboard_data.PendingDates[nexpagenumber]['id']
-        }
-      } */
       var links = Getlinks(pageNumber,dashboard_data.PendingDates)
-      preLink = links.preLink;
-      nexLink = links.nexLink;
-      prepagenumber = links.prepagenumber;
-      nexpagenumber = links.nexpagenumber;
-      setprePageindex(links.prePageindex)
-      setnexPageindex(links.nexPageindex)
-
-    }else if(status === "submitted"){
-
-      var links = Getlinks(pageNumber,dashboard_data.SubmittedDates)
-      preLink = links.preLink;
-      nexLink = links.nexLink;
-      prepagenumber = links.prepagenumber;
-      nexpagenumber = links.nexpagenumber;
-      setprePageindex(links.prePageindex)
-      setnexPageindex(links.nexPageindex)
-
-    }else if(status === "approved"){
-
-      var links = Getlinks(pageNumber,dashboard_data.ApprovedDates)
       preLink = links.preLink;
       nexLink = links.nexLink;
       prepagenumber = links.prepagenumber;
@@ -329,7 +225,6 @@ const CreateTimesheet = () => {
 
     var weekDates = [];
 
-    console.log(startDate +" "+ endDate)
     const sdate = new Date(startOfWeek),
       edate = new Date(endOfWeek),
       diff = (edate-sdate)/864e5,
@@ -337,42 +232,20 @@ const CreateTimesheet = () => {
       dates = Array.from(
         {length: diff+1},
         (_,i) => {
-          const date = new Date(startOfWeek)
+          const date = new Date()
           date.setDate(sdate.getDate()+i)
           const [weekdayStr, dateStr] = date.toLocaleDateString('en-US',dateFormat).split(', ')
           weekDates.push({"week":weekdayStr, "date":dateStr, "task": taskName, "start_time": startTime, "finish_time": finishTime, "comments": comments, "total_hours": totalHours, "readonly": readOnly, "creadonly": creadOnly})
           return `${dateStr} ${weekdayStr}`
         }
       )
+
       const displayColumns = ["day","date","task","start_time","finish_time","comments","total_hours", "readonly", "creadonly"];
       var udata = Pagination(weekDates, 1, 1, 10, displayColumns)
       setData(udata)
       setWeekdays(weekDates)
 
-// readonly setup starts
-      if (ref === "view") {
-        setReadonly(true)
-        setCReadonly(true)
-      }else if(status !== "pending" && id === "") {
-        setReadonly(true)
-        setCReadonly(true)
-      }else if(status === "submitted" || status === "approved") {
-        setReadonly(true)
-        if(auth.role === 2 && status !== "approved"){
-          setCReadonly(false)
-        }else{
-          setCReadonly(true)
-        }
-      }else if(status === "rejected") {
-        setReadonly(true)
-        setCReadonly(true)
-      }else if(auth.role === 2){
-        setReadonly(true)
-        setCReadonly(false)
-      }
-// end readonly setup starts
-
-  },[get_timesheet.timesheet_data, taskName && taskName[startDate], pageNumber, startDate])
+  },[id, get_timesheet.timesheet_data, pageNumber])
 
   const previousNavigate = () => {
     setLoading(true)
@@ -421,7 +294,6 @@ const CreateTimesheet = () => {
     if (auth && auth.role === 2 && status !== "approved") {
       button = <CCol xs={12} style={{ textAlign: "center" }}>
                 <CButton onClick={()=>saveData("approve")}>Approve</CButton>
-                <CButton onClick={()=>saveData("reject")} style={{ marginLeft: '10px' }}>Reject</CButton>
               </CCol>
     }
   }
@@ -437,7 +309,7 @@ const CreateTimesheet = () => {
                   { (ref === 'view') ? (
                       <strong>View Timesheet</strong>
                     ) : (
-                    <strong style={{ textTransform: "capitalize" }}>{ status !== null ? status : id === null ? 'Create' : 'Update' } Timesheet</strong>
+                    <strong>{id === null ? 'Create' : 'Update'} Timesheet</strong>
                     )
                   }
                 </CCol>

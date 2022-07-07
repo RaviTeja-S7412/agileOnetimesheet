@@ -155,6 +155,7 @@ export default (state = initState, action) => {
       state = {
         ...state,
         loading: true,
+        timesheet_data: {},
         get_singletimesheet: true,
       }
       break

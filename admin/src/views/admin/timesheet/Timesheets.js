@@ -4,7 +4,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import '@coreui/coreui/dist/css/coreui.css'
 import DataTable from 'react-data-table-component'
-import { CCard, CRow, CCol, CCardHeader, CCardBody, CButton } from '@coreui/react'
+import { CCard, CRow, CCol, CCardHeader, CCardBody, CButton, CBadge } from '@coreui/react'
 import { useSelector, useDispatch } from 'react-redux'
 import { deleteTimesheet, getTimesheets } from 'src/actions/timesheets.actions'
 import CIcon from '@coreui/icons-react'
@@ -90,7 +90,22 @@ const Timesheets = () => {
       },
       {
         name: 'Status',
-        selector: (row) => `${row.status}`,
+        cell: (row) => (
+          <>
+          { row.status === "Pending" ? (
+                  <CBadge color="warning">Pending</CBadge>
+              ) : (
+                row.status === "Submitted" ? (
+                  <CBadge color="info">Submitted</CBadge>
+                ) : row.status === "Approved" ? (
+                  <CBadge color="success">Approved</CBadge>
+                ) : row.status === "Rejected" ? (
+                  <CBadge color="danger">Rejected</CBadge>
+                ) : ( '' )
+              )
+          }
+          </>
+        ),
         sortable: true,
       },
       {

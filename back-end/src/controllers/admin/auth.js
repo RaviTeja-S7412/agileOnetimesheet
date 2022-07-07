@@ -150,6 +150,7 @@ exports.signin = (req, res) => {
 exports.updateProfile = [upload.single("file"),function(req,res){
     
     const id = req.body.user_id;
+    const role = req.body.role;
 
     if(!id){
         return res.status(202).json({ message: "User ID is Required." });
@@ -162,29 +163,65 @@ exports.updateProfile = [upload.single("file"),function(req,res){
         profile_pic = "/uploads/users/"+req.file.filename;
     }
 
-    const user_data = {
-        "user_image" : profile_pic,
-        "admin_name": req.body.admin_name,
-        "email": req.body.email,
-        "mobile": req.body.mobile,
+    if(role == 3){
+
+        var user_data = {
+            "user_image" : profile_pic,
+            "employee_name": req.body.admin_name,
+            "email": req.body.email,
+            "mobile": req.body.mobile,
+        }
+
+    }else{
+
+        var user_data = {
+            "user_image" : profile_pic,
+            "admin_name": req.body.admin_name,
+            "email": req.body.email,
+            "mobile": req.body.mobile,
+        }
+
     }
 
-    users.updateOne({_id:new ObjectId(id)}, {$set: user_data}, function (error, result) {
-        if (error) {
-            return res.status(202).json({
-                message: "Error Occured"
-            });
-        }
-        if (result) {
-            users.find({ _id: new ObjectId(id) })
-                .toArray((error, userdata) => {
-                return res.status(200).json({
-                    message: "Updated Successfully",
-                    user : userdata[0]
-                })
-            });
-        }
-    });
+    if(role == 3){
+
+        employees.updateOne({_id:new ObjectId(id)}, {$set: user_data}, function (error, result) {
+            if (error) {
+                return res.status(202).json({
+                    message: "Error Occured"
+                });
+            }
+            if (result) {
+                users.find({ _id: new ObjectId(id) })
+                    .toArray((error, userdata) => {
+                    return res.status(200).json({
+                        message: "Updated Successfully",
+                        user : userdata[0]
+                    })
+                });
+            }
+        });
+
+    }else{
+
+        users.updateOne({_id:new ObjectId(id)}, {$set: user_data}, function (error, result) {
+            if (error) {
+                return res.status(202).json({
+                    message: "Error Occured"
+                });
+            }
+            if (result) {
+                users.find({ _id: new ObjectId(id) })
+                    .toArray((error, userdata) => {
+                    return res.status(200).json({
+                        message: "Updated Successfully",
+                        user : userdata[0]
+                    })
+                });
+            }
+        });
+
+    }
 
 }];
 

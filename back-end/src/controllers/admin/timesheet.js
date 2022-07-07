@@ -80,7 +80,13 @@ exports.create_timesheet = (req, res) => {
         }
     }else if(ref == "approve"){
         var data = {
+            "comments": req.body.comments,
             "status" : 3
+        }
+    }else if(ref == "reject"){
+        var data = {
+            "comments": req.body.comments,
+            "status" : 0
         }
     }else if(ref == "submit"){
         var data = {
@@ -92,7 +98,12 @@ exports.create_timesheet = (req, res) => {
             "finish_time": req.body.finish_time,
             "comments": req.body.comments,
             "total_hours": req.body.total_hours,
-            "status" : 2
+            "created_date": new Date(),
+            "employee_id": req.body.employee_id,
+            "team_lead": req.body.team_lead,
+            "updated_date": "",
+            "status" : 2,
+            "deleted" : 0
         }
     }
 
@@ -213,6 +224,11 @@ exports.update_timesheet = (req, res) => {
             "comments": req.body.comments,
             "status" : 3
         }
+    }else if(ref == "reject"){
+        var data = {
+            "comments": req.body.comments,
+            "status" : 0
+        }
     }else if(ref == "submit"){
         var data = {
             "start_date": req.body.start_date,
@@ -318,7 +334,7 @@ exports.get_timesheets = (req, res) => {
                         status = "Submitted";
                     }else if(status == 3){
                         status = "Approved";
-                    }else if(status == 4){
+                    }else if(status == 0){
                         status = "Rejected";
                     }
 

@@ -63,6 +63,7 @@ const UpdateProfile = () => {
     fdata.append('designation', designation)
     fdata.append('file', profile_image)
     fdata.append('old_picture', udata.get_data && udata.get_data.user_image)
+    fdata.append('role', udata.get_data && udata.get_data.role)
 
     dispatch(updateProfile(fdata))
   }
