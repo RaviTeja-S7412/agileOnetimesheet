@@ -1,6 +1,5 @@
-/* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 
 // import routes from '../routes'
@@ -67,20 +66,24 @@ const AppBreadcrumb = () => {
 
   return (
     <CBreadcrumb className="m-0 ms-2">
-      <li className="breadcrumb-item">
-        <Link to={udata.get_data.uploads_folder + 'admin/dashboard'}>Home</Link>
-      </li>
+      <CBreadcrumbItem href={udata.get_data.uploads_folder + 'admin/dashboard'}>
+        Home
+      </CBreadcrumbItem>
       {breadcrumbs.map((breadcrumb, index) => {
         return (
-          <li className={`${breadcrumb.active ? 'active' : ''} breadcrumb-item`} key={'bi' + index}>
-            {breadcrumb.active ? (
-              breadcrumb.name
-            ) : (
-              <Link to={breadcrumb.pathname} key={index}>
-                {breadcrumb.name}
-              </Link>
-            )}
-          </li>
+          <CBreadcrumbItem
+            {...(breadcrumb.active
+              ? { active: true }
+              : {
+                  href:
+                    breadcrumb.pathname === '/admin/consultants'
+                      ? `/admin/consultants/${breadcrumb.prevPage}`
+                      : breadcrumb.pathname,
+                })}
+            key={index}
+          >
+            {breadcrumb.name}
+          </CBreadcrumbItem>
         )
       })}
     </CBreadcrumb>

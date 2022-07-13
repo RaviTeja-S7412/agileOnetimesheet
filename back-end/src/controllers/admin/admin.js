@@ -1,4 +1,6 @@
 const mongo = require('../../connection.js').getDb();
+const { now } = require('moment');
+const moment = require('moment');
 
 const employees = mongo.collection("tbl_employees");
 const users = mongo.collection("tbl_auths");
@@ -6,6 +8,7 @@ const projects = mongo.collection("tbl_projects");
 const roles = mongo.collection("tbl_roles");
 const assigned_projects = mongo.collection("tbl_assigned_projects");
 const timesheets = mongo.collection("tbl_timesheets");
+
 
 var ObjectId = require('mongodb').ObjectID;
 
@@ -202,67 +205,69 @@ exports.get_dashboarddata = (req, res) => {
                         timesheets.aggregate([
                             { $match : {"team_lead":user_id}},
                             { "$facet": {
-                                "PendingCount": [
-                                    { $match : {'status': { "$exists": true, "$in": [1] }}},
-                                    { $sort: { _id: -1 } },
-                                    {
-                                        $bucket: {
-                                          groupBy: "$status",
-                                          boundaries: [0,1,2,3,4],
-                                          default: "_id",
-                                          output: {
-                                            "count": { $sum: 1 },
-                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                          }
+                                    "PendingCount": [
+                                        { $match : {'status': { "$exists": true, "$in": [1] }}},
+                                        { $sort: { _id: -1 } },
+                                        {
+                                            $bucket: {
+                                            groupBy: "$status",
+                                            boundaries: [0,1,2,3,4],
+                                            default: "_id",
+                                            output: {
+                                                "count": { $sum: 1 },
+                                                "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                            }
+                                            }
                                         }
-                                    }
-                                ],
-                                "SubmittedCount": [
-                                    { $match : {'status': { "$exists": true, "$in": [2] }}},
-                                    { $sort: { _id: -1 } },
-                                    {
-                                        $bucket: {
-                                          groupBy: "$status",
-                                          boundaries: [0,1,2,3,4],
-                                          default: "_id",
-                                          output: {
-                                            "count": { $sum: 1 },
-                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                          }
+                                    ],
+                                    "SubmittedCount": [
+                                        { $match : {'status': { "$exists": true, "$in": [2] }}},
+                                        { $sort: { _id: -1 } },
+                                        {
+                                            $bucket: {
+                                            groupBy: "$status",
+                                            boundaries: [0,1,2,3,4],
+                                            default: "_id",
+                                            output: {
+                                                "count": { $sum: 1 },
+                                                "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                            }
+                                            }
                                         }
-                                    }
-                                ],
-                                "ApprovedCount": [
-                                    { $match : {'status': { "$exists": true, "$in": [3] }}},
-                                    { $sort: { _id: -1 } },
-                                    {
-                                        $bucket: {
-                                          groupBy: "$status",
-                                          boundaries: [0,1,2,3,4],
-                                          default: "_id",
-                                          output: {
-                                            "count": { $sum: 1 },
-                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                          }
+                                    ],
+                                    "ApprovedCount": [
+                                        { $match : {'status': { "$exists": true, "$in": [3] }}},
+                                        { $sort: { _id: -1 } },
+                                        {
+                                            $bucket: {
+                                            groupBy: "$status",
+                                            boundaries: [0,1,2,3,4],
+                                            default: "_id",
+                                            output: {
+                                                "count": { $sum: 1 },
+                                                "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                            }
+                                            }
                                         }
-                                    }
-                                ],
-                                "RejectedCount": [
-                                    { $match : {'status': { "$exists": true, "$in": [0] }}},
-                                    { $sort: { _id: -1 } },
-                                    {
-                                        $bucket: {
-                                          groupBy: "$status",
-                                          boundaries: [0,1,2,3,4],
-                                          default: "_id",
-                                          output: {
-                                            "count": { $sum: 1 },
-                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                          }
+                                    ],
+                                    "RejectedCount": [
+                                        { $match : {'status': { "$exists": true, "$in": [0] }}},
+                                        { $sort: { _id: -1 } },
+                                        {
+                                            $bucket: {
+                                            groupBy: "$status",
+                                            boundaries: [0,1,2,3,4],
+                                            default: "_id",
+                                            output: {
+                                                "count": { $sum: 1 },
+                                                "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                            }
+                                            }
                                         }
-                                    }
-                                ]
-                            }}
+                                    ]
+                                }
+                            },
+                            
                         ]).toArray(function(err,tcount){
     
                             result[0]["SubmittedCount"] = tcount[0]["SubmittedCount"][0] ? tcount[0]["SubmittedCount"][0]["count"] : 0;
@@ -284,85 +289,133 @@ exports.get_dashboarddata = (req, res) => {
 
                 }else if(role == 3){
 
-                    timesheets.aggregate([
-                        { $match : {"employee_id":user_id}},
-                        { $facet: {
-                            "PendingCount": [
-                                { $match : {'status': { "$exists": true, "$in": [1] }}},
-                                { $sort: { _id: -1 } },
-                                {
-                                    $bucket: {
-                                      groupBy: "$status",
-                                      boundaries: [0,1,2,3,4],
-                                      default: "_id",
-                                      output: {
-                                        "count": { $sum: 1 },
-                                        "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                      }
-                                    }
-                                }
-                            ],
-                            "SubmittedCount": [
-                                { $match : {'status': { "$exists": true, "$in": [2] }}},
-                                { $sort: { _id: -1 } },
-                                {
-                                    $bucket: {
-                                      groupBy: "$status",
-                                      boundaries: [0,1,2,3,4],
-                                      default: "_id",
-                                      output: {
-                                        "count": { $sum: 1 },
-                                        "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                      }
-                                    }
-                                }
-                            ],
-                            "ApprovedCount": [
-                                { $match : {'status': { "$exists": true, "$in": [3] }}},
-                                { $sort: { _id: -1 } },
-                                {
-                                    $bucket: {
-                                      groupBy: "$status",
-                                      boundaries: [0,1,2,3,4],
-                                      default: "_id",
-                                      output: {
-                                        "count": { $sum: 1 },
-                                        "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                      }
-                                    }
-                                }
-                            ],
-                            "RejectedCount": [
-                                { $match : {'status': { "$exists": true, "$in": [0] }}},
-                                { $sort: { _id: -1 } },
-                                {
-                                    $bucket: {
-                                      groupBy: "$status",
-                                      boundaries: [0,1,2,3,4],
-                                      default: "_id",
-                                      output: {
-                                        "count": { $sum: 1 },
-                                        "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
-                                      }
-                                    }
-                                }
-                            ]
-                        }},
-                    ]).toArray(function(err,tcount){
+                    employees.find({"_id": new ObjectId(user_id)}).toArray(function(err, employee_data){
 
-                        result[0]["EMPCount"] = 0;
-                        result[0]["PROJECTCount"] = 0;
-                        result[0]["SubmittedCount"] = tcount[0]["SubmittedCount"][0] ? tcount[0]["SubmittedCount"][0]["count"] : 0;
-                        result[0]["PendingCount"] = tcount[0]["PendingCount"][0] ? tcount[0]["PendingCount"][0]["count"] : 0;
-                        result[0]["ApprovedCount"] = tcount[0]["ApprovedCount"][0] ? tcount[0]["ApprovedCount"][0]["count"] : 0;
-                        result[0]["RejectedCount"] = tcount[0]["RejectedCount"][0] ? tcount[0]["RejectedCount"][0]["count"] : 0;
-                        result[0]["SubmittedDates"] = tcount[0]["SubmittedCount"][0] ? tcount[0]["SubmittedCount"][0]["dates"] : [];
-                        result[0]["PendingDates"] = tcount[0]["PendingCount"][0] ? tcount[0]["PendingCount"][0]["dates"] : [];
-                        result[0]["ApprovedDates"] = tcount[0]["ApprovedCount"][0] ? tcount[0]["ApprovedCount"][0]["dates"] : [];
-                        result[0]["RejectedDates"] = tcount[0]["RejectedCount"][0] ? tcount[0]["RejectedCount"][0]["dates"] : [];
+                        var startOfWeek = new Date(moment().startOf("isoWeek").toDate()).toLocaleDateString('en-US');
 
-                        return res.status(200).json({
-                            dashboard_data: result,
+                        timesheets.aggregate([
+                            { $match : {"employee_id":user_id}},
+                            { $facet: {
+                                "PendingCount": [
+                                    { $match : {'status': { "$exists": true, "$in": [1] }}},
+                                    { $sort: { _id: -1 } },
+                                    {
+                                        $bucket: {
+                                        groupBy: "$status",
+                                        boundaries: [0,1,2,3,4],
+                                        default: "_id",
+                                        output: {
+                                            "count": { $sum: 1 },
+                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                        }
+                                        }
+                                    }
+                                ],
+                                "SubmittedCount": [
+                                    { $match : {'status': { "$exists": true, "$in": [2] }}},
+                                    { $sort: { _id: -1 } },
+                                    {
+                                        $bucket: {
+                                        groupBy: "$status",
+                                        boundaries: [0,1,2,3,4],
+                                        default: "_id",
+                                        output: {
+                                            "count": { $sum: 1 },
+                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                        }
+                                        }
+                                    }
+                                ],
+                                "ApprovedCount": [
+                                    { $match : {'status': { "$exists": true, "$in": [3] }}},
+                                    { $sort: { _id: -1 } },
+                                    {
+                                        $bucket: {
+                                        groupBy: "$status",
+                                        boundaries: [0,1,2,3,4],
+                                        default: "_id",
+                                        output: {
+                                            "count": { $sum: 1 },
+                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                        }
+                                        }
+                                    }
+                                ],
+                                "RejectedCount": [
+                                    { $match : {'status': { "$exists": true, "$in": [0] }}},
+                                    { $sort: { _id: -1 } },
+                                    {
+                                        $bucket: {
+                                        groupBy: "$status",
+                                        boundaries: [0,1,2,3,4],
+                                        default: "_id",
+                                        output: {
+                                            "count": { $sum: 1 },
+                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                        }
+                                        }
+                                    }
+                                ],
+                                "CurrentweekPendingCount": [
+                                    { $match : {
+                                        $or : [
+                                            {
+                                                'start_date' : startOfWeek ,
+                                            }
+                                        ]
+                                    }},
+                                    { $sort: { _id: -1 } },
+                                    {
+                                        $bucket: {
+                                        groupBy: "$status",
+                                        boundaries: [0,1,2,3,4],
+                                        default: "_id",
+                                        output: {
+                                            "count": { $sum: 1 },
+                                            "dates": { $push: { "id": "$_id", "start_date": "$start_date", "end_date": "$end_date" } },
+                                        }
+                                        }
+                                    }
+                                ],
+                            }},
+                        ]).toArray(function(err,tcount){
+
+                            var cdate = new Date(employee_data[0]['created_date']).toLocaleDateString('en-US');
+
+                            var startOfWeek = new Date(moment(cdate).startOf('isoWeek').toDate()).toLocaleDateString('en-US')
+                            var endOfWeek = new Date(moment(cdate).endOf('isoWeek').toDate()).toLocaleDateString('en-US')
+
+                            var dates = []; 
+                            var a = moment(cdate);
+                            var b = moment();
+                            weeks=b.diff(a, 'week');
+
+                            // for (let index = 0; index < weeks; index++) {
+                               
+                            //     var sdate = startOfWeek;
+                            //     var edate = endOfWeek;
+
+                            //     sdate = moment(sdate).add(7, 'days');
+                            //     dat
+                            // }
+
+                                result[0]["EMPCount"] = 0;
+                                result[0]["PROJECTCount"] = 0;
+                                result[0]["SubmittedCount"] = tcount[0]["SubmittedCount"][0] ? tcount[0]["SubmittedCount"][0]["count"] : 0;
+                                result[0]["PendingCount"] = tcount[0]["PendingCount"][0] ? tcount[0]["PendingCount"][0]["count"] : 0;
+                                result[0]["CurrentweekPendingCount"] = tcount[0]["CurrentweekPendingCount"][0] ? tcount[0]["CurrentweekPendingCount"][0]["count"] : 0;
+                                result[0]["ApprovedCount"] = tcount[0]["ApprovedCount"][0] ? tcount[0]["ApprovedCount"][0]["count"] : 0;
+                                result[0]["RejectedCount"] = tcount[0]["RejectedCount"][0] ? tcount[0]["RejectedCount"][0]["count"] : 0;
+                                result[0]["SubmittedDates"] = tcount[0]["SubmittedCount"][0] ? tcount[0]["SubmittedCount"][0]["dates"] : [];
+                                result[0]["PendingDates"] = tcount[0]["PendingCount"][0] ? tcount[0]["PendingCount"][0]["dates"] : [];
+                                result[0]["ApprovedDates"] = tcount[0]["ApprovedCount"][0] ? tcount[0]["ApprovedCount"][0]["dates"] : [];
+                                result[0]["RejectedDates"] = tcount[0]["RejectedCount"][0] ? tcount[0]["RejectedCount"][0]["dates"] : [];
+                                result[0]["employee_data"] = employee_data;
+
+                                return res.status(200).json({
+                                    dashboard_data: result,
+                                });
+
                         });
 
                     });

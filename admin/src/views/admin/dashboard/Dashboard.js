@@ -6,6 +6,7 @@ import { CRow, CCol, CWidgetStatsB } from '@coreui/react'
 import { useSelector, useDispatch } from 'react-redux'
 import { get_dashboard_data } from 'src/helpers/Admin'
 import { useNavigate } from 'react-router-dom'
+import moment from 'moment'
 
 const Dashboard = () => {
   const dispatch = useDispatch()
@@ -18,6 +19,12 @@ const Dashboard = () => {
   const [pendingLink, setPendinglink] = useState('')
   const [approvedLink, setApprovedlink] = useState('')
   const [rejectedLink, setRejectedlink] = useState('')
+  const [submitCount, setSubmitcount] = useState(dashboard_data ? dashboard_data.SubmittedCount : 0)
+  const [pendCount, setPendingcount] = useState(dashboard_data ? dashboard_data.PendingCount : 0)
+  const [approveCount, setApprovedcount] = useState(
+    dashboard_data ? dashboard_data.ApprovedCount : 0,
+  )
+  const [rejCount, setRejectedcount] = useState(dashboard_data ? dashboard_data.RejectedCount : 0)
 
   useEffect(() => {
     if (admin.get_dashboard_data) {
@@ -28,13 +35,21 @@ const Dashboard = () => {
       setSubmittedlink(dashboard_data.SubmittedDates[0] && dashboard_data.SubmittedDates[0]['id'])
     }
     if (dashboard_data && dashboard_data.PendingDates) {
-      setPendinglink(dashboard_data.PendingDates[0] && dashboard_data.PendingDates[0]['id'])
+      setPendinglink(
+        dashboard_data.PendingDates[0] && '&id=' + dashboard_data.PendingDates[0]['id'],
+      )
     }
     if (dashboard_data && dashboard_data.ApprovedDates) {
       setApprovedlink(dashboard_data.ApprovedDates[0] && dashboard_data.ApprovedDates[0]['id'])
     }
     if (dashboard_data && dashboard_data.RejectedDates) {
       setRejectedlink(dashboard_data.RejectedDates[0] && dashboard_data.RejectedDates[0]['id'])
+    }
+    if (dashboard_data && dashboard_data.CurrentweekPendingCount === 0) {
+      var startOfWeek = new Date(moment().startOf('isoWeek').toDate()).toLocaleDateString('en-US')
+      var endOfWeek = new Date(moment().endOf('isoWeek').toDate()).toLocaleDateString('en-US')
+      setPendingcount(pendCount + 1)
+      setPendinglink('&sdate=' + startOfWeek + '&edate=' + endOfWeek)
     }
   }, [admin.get_dashboard_data])
 
@@ -52,7 +67,7 @@ const Dashboard = () => {
     location(
       pendingLink
         ? admin.get_data.uploads_folder +
-            'admin/time-sheets/update-time-sheet?status=pending&id=' +
+            'admin/time-sheets/update-time-sheet?status=pending' +
             pendingLink +
             '&page=0'
         : '#',
@@ -137,10 +152,13 @@ const Dashboard = () => {
         {auth.role === 3 || auth.role === 2 ? (
           <>
             <CCol xs={12} sm={6} lg={3}>
-              <a onClick={submitLink} style={{ color: '#000', cursor: 'pointer' }}>
+              <a
+                onClick={submitLink}
+                style={{ color: '#000', cursor: submitCount > 0 ? 'pointer' : 'default' }}
+              >
                 <CWidgetStatsB
                   className="mb-4"
-                  value={dashboard_data ? dashboard_data.SubmittedCount : 0}
+                  value={submitCount}
                   title="Submitted Timesheets"
                   progress={{ color: 'primary', value: 89.9 }}
                   style={{ height: '115px' }}
@@ -148,10 +166,13 @@ const Dashboard = () => {
               </a>
             </CCol>
             <CCol xs={12} sm={6} lg={3}>
-              <a onClick={pendLink} style={{ color: '#000', cursor: 'pointer' }}>
+              <a
+                onClick={pendLink}
+                style={{ color: '#000', cursor: pendCount > 0 ? 'pointer' : 'default' }}
+              >
                 <CWidgetStatsB
                   className="mb-4"
-                  value={dashboard_data ? dashboard_data.PendingCount : 0}
+                  value={pendCount}
                   title="Pending Timesheets"
                   style={{ height: '115px' }}
                   progress={{ color: 'warning', value: 89.9 }}
@@ -159,10 +180,13 @@ const Dashboard = () => {
               </a>
             </CCol>
             <CCol xs={12} sm={6} lg={3}>
-              <a onClick={apprLink} style={{ color: '#000', cursor: 'pointer' }}>
+              <a
+                onClick={apprLink}
+                style={{ color: '#000', cursor: approveCount > 0 ? 'pointer' : 'default' }}
+              >
                 <CWidgetStatsB
                   className="mb-4"
-                  value={dashboard_data ? dashboard_data.ApprovedCount : 0}
+                  value={approveCount}
                   title="Approved Timesheets"
                   style={{ height: '115px' }}
                   progress={{ color: 'success', value: 89.9 }}
@@ -170,10 +194,13 @@ const Dashboard = () => {
               </a>
             </CCol>
             <CCol xs={12} sm={6} lg={3}>
-              <a onClick={rejLink} style={{ color: '#000', cursor: 'pointer' }}>
+              <a
+                onClick={rejLink}
+                style={{ color: '#000', cursor: rejCount > 0 ? 'pointer' : 'default' }}
+              >
                 <CWidgetStatsB
                   className="mb-4"
-                  value={dashboard_data ? dashboard_data.RejectedCount : 0}
+                  value={rejCount}
                   title="Rejected Timesheets"
                   style={{ height: '115px' }}
                   progress={{ color: 'danger', value: 89.9 }}

@@ -329,7 +329,6 @@ const CreateTimesheet = () => {
 
     var weekDates = [];
 
-    console.log(startDate +" "+ endDate)
     const sdate = new Date(startOfWeek),
       edate = new Date(endOfWeek),
       diff = (edate-sdate)/864e5,
